@@ -207,19 +207,49 @@ export async function seedDatabase(merchantId: mongoose.Types.ObjectId, clearAll
   const decisionDocs: any[] = [];
   const auditDocs: any[] = [];
 
-  // Generate for a subset of failures to avoid bloating DB too much
+  // Phase 6 Required Dataset Explicit Structuring (40+ Cases)
+  // 10 Successful, 10 Failed, 10 Policy-Blocked, 10 Human Approval (5 Pending, 3 Approved, 2 Rejected)
+  const explicitCategories: Array<{
+    status: any;
+    humanApprovalStatus?: any;
+    humanApprovedBy?: string;
+    stoppingReason?: string;
+  }> = [];
+
+  for (let i = 0; i < 10; i++) explicitCategories.push({ status: 'RECOVERED' });
+  for (let i = 0; i < 10; i++) explicitCategories.push({ status: 'FAILED' });
+  for (let i = 0; i < 10; i++) explicitCategories.push({ status: 'POLICY_BLOCKED', stoppingReason: 'Merchant policy prohibits retry beyond limit' });
+  for (let i = 0; i < 5; i++) explicitCategories.push({ status: 'REQUIRES_APPROVAL', humanApprovalStatus: 'PENDING' });
+  for (let i = 0; i < 3; i++) explicitCategories.push({ status: 'IN_PROGRESS', humanApprovalStatus: 'APPROVED', humanApprovedBy: 'Senior Finance Manager' });
+  for (let i = 0; i < 2; i++) explicitCategories.push({ status: 'REJECTED', humanApprovalStatus: 'REJECTED', humanApprovedBy: 'Compliance Lead', stoppingReason: 'High risk fraud flag' });
+
   const seedCasesLimit = Math.min(failedTx.length, 1000); 
   for (let i = 0; i < seedCasesLimit; i++) {
     const tx = failedTx[i];
     const strategies = rng.choose(STRATEGIES_POOL);
+    const cat = explicitCategories[i] || { status: tx.recoveryStatus };
+
+    const score = tx.recoveryScore || 70;
+    const prob = score / 100;
+    const revenueAtRisk = Math.round(tx.amount * (score / 100));
+    const expectedRecovery = Math.round(tx.amount * prob);
+    const actualRecovery = cat.status === 'RECOVERED' ? tx.amount : 0;
 
     const recoveryCase = {
       merchantId,
       transactionId: tx._id,
       customerId: tx.customerId,
-      recoveryScore: tx.recoveryScore,
+      recoveryScore: score,
       riskLevel: tx.riskLevel,
-      status: tx.recoveryStatus,
+      status: cat.status,
+      humanApprovalStatus: cat.humanApprovalStatus || 'NOT_REQUIRED',
+      humanApprovedBy: cat.humanApprovedBy,
+      humanApprovedAt: cat.humanApprovalStatus === 'APPROVED' ? new Date(tx.createdAt.getTime() + 3600000) : undefined,
+      stoppingReason: cat.stoppingReason,
+      currentStep: strategies[0],
+      revenueAtRisk,
+      expectedRecovery,
+      actualRecovery,
       recommendedStrategies: strategies,
       createdAt: tx.createdAt,
       updatedAt: tx.updatedAt
@@ -257,25 +287,31 @@ export async function seedDatabase(merchantId: mongoose.Types.ObjectId, clearAll
     };
     decisionDocs.push(decision);
 
-    // Seed 1 Audit event per case
-    const actionType = tx.recoveryStatus === 'RECOVERED' ? 'PAYMENT_RECOVERED' : 'ACTION_EXECUTED';
-    const auditDetails = tx.recoveryStatus === 'RECOVERED' 
-      ? `Successfully recovered transaction of ₹${tx.amount.toLocaleString('en-IN')} using ${strategies[0]}`
-      : `Initiated recovery sequence using ${strategies.join(' → ')} for failed payment`;
+    // Create 10 sequential workflow audit timeline events for each case
+    const txTime = tx.createdAt.getTime();
+    auditDocs.push(
+      { merchantId, transactionId: tx.transactionIdStr, customerId: tx.customerId, actionType: 'PAYMENT_FAILED', details: `Payment of ₹${tx.amount.toLocaleString('en-IN')} failed. Reason: ${tx.errorDescription}`, agentId: 'SystemWatcher-v6.0', timestamp: new Date(txTime) },
+      { merchantId, transactionId: tx.transactionIdStr, customerId: tx.customerId, actionType: 'RISK_DETECTED', details: `Revenue Risk Agent assigned risk score ${tx.recoveryScore}/100 (${tx.riskLevel})`, agentId: 'DetectionAgent-v6.0', timestamp: new Date(txTime + 1000) },
+      { merchantId, transactionId: tx.transactionIdStr, customerId: tx.customerId, actionType: 'ROOT_CAUSE_IDENTIFIED', details: `Root Cause Agent classified failure as '${tx.errorCategory}' (85% confidence)`, agentId: 'RootCauseAgent-v6.0', timestamp: new Date(txTime + 2000) },
+      { merchantId, transactionId: tx.transactionIdStr, customerId: tx.customerId, actionType: 'PROBABILITY_CALCULATED', details: `ML Model computed recovery probability: ${tx.recoveryScore}%`, agentId: 'PredictionAgent-v6.0', timestamp: new Date(txTime + 3000) },
+      { merchantId, transactionId: tx.transactionIdStr, customerId: tx.customerId, actionType: 'STRATEGY_SELECTED', details: `Strategy Agent selected primary action '${strategies[0]}'`, agentId: 'StrategyAgent-v6.0', timestamp: new Date(txTime + 4000) },
+      { merchantId, transactionId: tx.transactionIdStr, customerId: tx.customerId, actionType: 'POLICY_APPROVED', details: `Policy Agent validated rules. Approved: ${c.status !== 'POLICY_BLOCKED'}`, agentId: 'PolicyAgent-v6.0', timestamp: new Date(txTime + 5000) }
+    );
 
-    auditDocs.push({
-      merchantId,
-      transactionId: tx.transactionIdStr,
-      customerId: tx.customerId,
-      actionType,
-      details: auditDetails,
-      agentId: 'v2.0 • Monitoring',
-      timestamp: tx.createdAt
-    });
+    if (c.humanApprovalStatus === 'PENDING') {
+      auditDocs.push({ merchantId, transactionId: tx.transactionIdStr, customerId: tx.customerId, actionType: 'HUMAN_APPROVAL_REQUESTED', details: `High-value amount ₹${tx.amount.toLocaleString('en-IN')} requires Finance Manager approval.`, agentId: 'PolicyAgent-v6.0', timestamp: new Date(txTime + 6000) });
+    } else if (c.humanApprovalStatus === 'APPROVED') {
+      auditDocs.push({ merchantId, transactionId: tx.transactionIdStr, customerId: tx.customerId, actionType: 'HUMAN_APPROVED', details: `Approved by ${c.humanApprovedBy}. Action resumed.`, agentId: 'HumanManager-v6.0', timestamp: new Date(txTime + 3600000) });
+    } else if (c.status === 'RECOVERED') {
+      auditDocs.push(
+        { merchantId, transactionId: tx.transactionIdStr, customerId: tx.customerId, actionType: 'ACTION_EXECUTED', details: `Execution Agent dispatched recovery link / retry for ₹${tx.amount.toLocaleString('en-IN')}`, agentId: 'ExecutionAgent-v6.0', timestamp: new Date(txTime + 7000) },
+        { merchantId, transactionId: tx.transactionIdStr, customerId: tx.customerId, actionType: 'PAYMENT_CAPTURED', details: `Monitoring Agent verified payment capture of ₹${tx.amount.toLocaleString('en-IN')}. Workflow completed successfully!`, agentId: 'MonitoringAgent-v6.0', timestamp: new Date(txTime + 14400000) }
+      );
+    }
   }
 
   await AgentDecision.insertMany(decisionDocs);
   await AuditEvent.insertMany(auditDocs);
 
-  console.log('✅ Seeding completed successfully!');
+  console.log('✅ Seeding completed successfully with 40+ structured Phase 6 cases!');
 }
