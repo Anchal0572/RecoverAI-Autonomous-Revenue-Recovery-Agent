@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0a0a0b;
+  --color-surface: #121214;
+  --color-surfaceHover: #1c1c1f;
+  --color-surface-hover: #1c1c1f;
+  --color-border: #27272a;
+  
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  
+  --color-success: #10b981;
+  --color-success-bg: rgba(16, 185, 129, 0.1);
+  
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.1);
+  
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.1);
+  
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+@layer base {
+  :root {
+    --background: #0a0a0b;
+    --foreground: #f4f4f5;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', -apple-system, sans-serif;
+  }
+}
+
+@utility glass-card {
+  @apply bg-surface/80 backdrop-blur-md border border-border rounded-xl shadow-lg;
+}
+
+@utility btn-primary {
+  @apply px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors;
+}
+
+@utility btn-secondary {
+  @apply px-4 py-2 bg-surface hover:bg-surfaceHover border border-border text-gray-200 rounded-lg font-medium transition-colors;
+}
+
+@utility input-field {
+  @apply w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all;
+}
