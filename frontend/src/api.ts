@@ -150,3 +150,42 @@ export async function fetchModelEvaluation() {
   return res.json();
 }
 
+// ── Agent Pipeline (Phase 4) ──
+
+export async function runAgentPipeline(transactionId: string) {
+  const res = await fetch(`${API_BASE}/agent/run/${transactionId}`, {
+    method: 'POST',
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+export async function fetchAgentRuns() {
+  const res = await fetch(`${API_BASE}/agent/runs`, {
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+export async function fetchAgentRunById(runId: string) {
+  const res = await fetch(`${API_BASE}/agent/runs/${runId}`, {
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+export async function fetchAgentStatus() {
+  const res = await fetch(`${API_BASE}/agent/status`, {
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+export async function testIndividualAgent(agentName: string, payload = {}) {
+  const res = await fetch(`${API_BASE}/agent/test/${agentName}`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(payload)
+  });
+  return res.json();
+}

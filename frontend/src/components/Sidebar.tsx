@@ -27,28 +27,28 @@ export default function Sidebar() {
   let currentSection = '';
 
   return (
-    <aside className="w-64 min-h-screen bg-surface border-r border-border flex flex-col fixed top-0 left-0 z-50">
-      <div className="p-6 border-b border-border flex items-center gap-3">
-        <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center text-white font-bold">
+    <aside className="w-64 h-screen max-h-screen bg-surface border-r border-border flex flex-col fixed top-0 left-0 z-50 overflow-hidden">
+      <div className="p-5 border-b border-border flex items-center gap-3 flex-shrink-0">
+        <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/20">
           ⚡
         </div>
         <div>
-          <div className="font-extrabold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+          <div className="font-extrabold text-base tracking-tight bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
             RecoverAI
           </div>
-          <div className="text-[10px] text-gray-400 font-medium tracking-wider">
+          <div className="text-[10px] text-gray-400 font-medium tracking-wider uppercase">
             REVENUE AGENT
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 p-3 overflow-y-auto flex flex-col gap-1">
+      <nav className="flex-1 px-3 py-2 overflow-y-auto flex flex-col gap-0.5 custom-sidebar-scrollbar">
         {navItems.map((item) => {
           let sectionLabel = null;
           if (item.section !== currentSection) {
             currentSection = item.section;
             sectionLabel = (
-              <div className="text-[10px] font-bold text-gray-500 tracking-widest uppercase px-3 pt-5 pb-2" key={`section-${item.section}`}>
+              <div className="text-[10px] font-bold text-gray-500 tracking-widest uppercase px-3 pt-4 pb-1.5" key={`section-${item.section}`}>
                 {item.section}
               </div>
             );
@@ -59,9 +59,9 @@ export default function Sidebar() {
               <NavLink
                 to={item.path}
                 className={({ isActive }) => cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150",
                   isActive 
-                    ? "bg-primary/10 text-primary border-l-2 border-primary" 
+                    ? "bg-primary/10 text-primary border-l-2 border-primary font-semibold" 
                     : "text-gray-400 hover:bg-surfaceHover hover:text-gray-200"
                 )}
               >
@@ -78,12 +78,12 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-border">
-        <div className="flex items-center gap-3 p-3 bg-success-bg border border-success/20 rounded-lg">
+      <div className="p-3 border-t border-border flex-shrink-0 bg-surface">
+        <div className="flex items-center gap-3 p-2.5 bg-success-bg border border-success/20 rounded-lg">
           <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
           <div>
             <div className="text-xs font-semibold text-success">Agent Active</div>
-            <div className="text-[10px] text-gray-400">v2.0 • Monitoring</div>
+            <div className="text-[10px] text-gray-400">v4.0 • Autonomous Engine</div>
           </div>
         </div>
       </div>

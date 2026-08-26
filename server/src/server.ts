@@ -15,6 +15,7 @@ import policyRouter from './routes/policy';
 import auditRouter from './routes/audit';
 import analyticsRouter from './routes/analytics';
 import seedRouter from './routes/seed';
+import agentRouter from './routes/agentRoutes';
 
 // Import controllers for standalone endpoints
 import { getMonitoringStatus } from './controllers/monitoring';
@@ -56,6 +57,7 @@ app.use('/api/v1/policies', policyRouter);
 app.use('/api/v1/audit-events', auditRouter);
 app.use('/api/v1/analytics', analyticsRouter);
 app.use('/api/v1/seed', seedRouter);
+app.use('/api/v1/agent', agentRouter);
 
 // Standalone v1 routes matching frontend client expectations
 app.get('/api/v1/monitoring/status', authMiddleware as any, getMonitoringStatus as any);
