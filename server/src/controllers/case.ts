@@ -157,3 +157,65 @@ export async function getAgentAnalysis(req: AuthRequest, res: Response) {
     return res.status(500).json({ error: 'Internal server error fetching decision details.' });
   }
 }
+
+// ── Phase 6 Human Manager Approval Controllers ──
+
+export async function approveCaseController(req: AuthRequest, res: Response) {
+  try {
+    if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+    const { id } = req.params;
+    const { managerName = 'Finance Manager' } = req.body;
+    const merchantIdStr = req.user.merchantId;
+
+    const { RecoveryEngineService } = await import('../services/RecoveryEngineService');
+    const engine = new RecoveryEngineService();
+
+    const result = await engine.approveCase(id, merchantIdStr, managerName);
+    return res.json({
+      message: 'Case successfully approved by manager. Workflow resumed.',
+      result
+    });
+  } catch (error: any) {
+    return res.status(400).json({ error: error.message || 'Failed to approve case.' });
+  }
+}
+
+export async function rejectCaseController(req: AuthRequest, res: Response) {
+  try {
+    if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+    const { id } = req.params;
+    const { managerName = 'Finance Manager', reason = 'Manager rejected action' } = req.body;
+    const merchantIdStr = req.user.merchantId;
+
+    const { RecoveryEngineService } = await import('../services/RecoveryEngineService');
+    const engine = new RecoveryEngineService();
+
+    const result = await engine.rejectCase(id, merchantIdStr, managerName, reason);
+    return res.json({
+      message: 'Case approval rejected by manager. Workflow stopped cleanly.',
+      result
+    });
+  } catch (error: any) {
+    return res.status(400).json({ error: error.message || 'Failed to reject case.' });
+  }
+}
+
+export async function getApprovalQueueController(req: AuthRequest, res: Response) {
+  try {
+    if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+    const merchantId = new Types.ObjectId(req.user.merchantId);
+
+    const pendingCases = await RecoveryCase.find({ merchantId, humanApprovalStatus: 'PENDING' })
+      .populate({ path: 'transactionId', populate: { path: 'customerId' } })
+      .populate('customerId')
+      .sort({ createdAt: -1 });
+
+    return res.json({
+      total: pendingCases.length,
+      cases: pendingCases
+    });
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Failed to fetch approval queue.' });
+  }
+}
+
