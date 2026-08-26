@@ -16,6 +16,7 @@ import auditRouter from './routes/audit';
 import analyticsRouter from './routes/analytics';
 import seedRouter from './routes/seed';
 import agentRouter from './routes/agentRoutes';
+import webhookRouter from './routes/webhookRoutes';
 
 // Import controllers for standalone endpoints
 import { getMonitoringStatus } from './controllers/monitoring';
@@ -31,7 +32,7 @@ app.use(helmet());
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-razorpay-signature', 'x-signature']
 }));
 
 // Rate Limiting
@@ -42,7 +43,11 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use(express.json());
+app.use(express.json({
+  verify: (req: any, _res, buf) => {
+    req.rawBody = buf.toString('utf8');
+  }
+}));
 app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB
@@ -58,6 +63,7 @@ app.use('/api/v1/audit-events', auditRouter);
 app.use('/api/v1/analytics', analyticsRouter);
 app.use('/api/v1/seed', seedRouter);
 app.use('/api/v1/agent', agentRouter);
+app.use('/api/v1/webhooks', webhookRouter);
 
 // Standalone v1 routes matching frontend client expectations
 app.get('/api/v1/monitoring/status', authMiddleware as any, getMonitoringStatus as any);

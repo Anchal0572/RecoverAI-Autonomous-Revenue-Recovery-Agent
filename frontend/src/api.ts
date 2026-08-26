@@ -189,3 +189,21 @@ export async function testIndividualAgent(agentName: string, payload = {}) {
   });
   return res.json();
 }
+
+// ── Razorpay Webhook & Integration (Phase 5) ──
+
+export async function fetchWebhookStatus() {
+  const res = await fetch(`${API_BASE}/webhooks/status`, {
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+export async function triggerTestWebhook(payload = {}) {
+  const res = await fetch(`${API_BASE}/webhooks/trigger-test`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(payload)
+  });
+  return res.json();
+}
