@@ -207,3 +207,37 @@ export async function triggerTestWebhook(payload = {}) {
   });
   return res.json();
 }
+
+// ── Phase 6 Workflow & Human Approval APIs ──
+
+export async function fetchApprovalQueue() {
+  const res = await fetch(`${API_BASE}/recovery-cases/approval-queue`, {
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+export async function approveCase(caseId: string, managerName = 'Finance Manager') {
+  const res = await fetch(`${API_BASE}/recovery-cases/${caseId}/approve`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ managerName })
+  });
+  return res.json();
+}
+
+export async function rejectCase(caseId: string, managerName = 'Finance Manager', reason = 'Manager rejected action') {
+  const res = await fetch(`${API_BASE}/recovery-cases/${caseId}/reject`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ managerName, reason })
+  });
+  return res.json();
+}
+
+export async function fetchRevenueMetrics() {
+  const res = await fetch(`${API_BASE}/analytics/revenue-metrics`, {
+    headers: getHeaders()
+  });
+  return res.json();
+}

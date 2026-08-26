@@ -49,16 +49,17 @@ function getDateRange(key: RangeKey): { startDate?: string; endDate?: string } {
 // ────── Action type config ──────
 const ACTION_TYPES = [
   { value: 'ALL', label: 'All Actions' },
+  { value: 'PAYMENT_FAILED', label: 'Payment Failed' },
   { value: 'RISK_DETECTED', label: 'Risk Detected' },
-  { value: 'AI_ANALYSIS', label: 'AI Analysis' },
+  { value: 'ROOT_CAUSE_IDENTIFIED', label: 'Root Cause Identified' },
+  { value: 'PROBABILITY_CALCULATED', label: 'Probability Calculated' },
   { value: 'STRATEGY_SELECTED', label: 'Strategy Selected' },
-  { value: 'POLICY_VALIDATED', label: 'Policy Validated' },
+  { value: 'POLICY_APPROVED', label: 'Policy Approved' },
+  { value: 'HUMAN_APPROVAL_REQUESTED', label: 'Human Approval Requested' },
+  { value: 'HUMAN_APPROVED', label: 'Human Approved' },
   { value: 'ACTION_EXECUTED', label: 'Action Executed' },
-  { value: 'PAYMENT_RECOVERED', label: 'Payment Recovered' },
-  { value: 'EMAIL_REMINDER', label: 'Email Reminder' },
-  { value: 'SMS_OTP', label: 'SMS / OTP' },
-  { value: 'RETRY_PAYMENT', label: 'Retry Payment' },
-  { value: 'PAYMENT_METHOD_CHANGE', label: 'Payment Method Change' },
+  { value: 'PAYMENT_CAPTURED', label: 'Payment Captured' },
+  { value: 'WORKFLOW_STOPPED', label: 'Workflow Stopped' },
 ];
 
 const DATE_TABS: { key: RangeKey; label: string }[] = [
