@@ -3,7 +3,8 @@ import {
   getRevenueRiskAnalytics, 
   getRecoveryAnalytics, 
   getModelPerformanceInfo, 
-  getModelPerformanceEvaluation 
+  getModelPerformanceEvaluation,
+  getExplicitRevenueMetrics
 } from '../controllers/analytics';
 import { authMiddleware } from '../middleware/authMiddleware';
 
@@ -15,5 +16,6 @@ router.get('/revenue-risk', getRevenueRiskAnalytics as any);
 router.get('/recovery', getRecoveryAnalytics as any);
 router.get('/model-info', getModelPerformanceInfo as any);
 router.get('/evaluation', getModelPerformanceEvaluation as any);
+router.get('/revenue-metrics', getExplicitRevenueMetrics as any);
 
 export default router;

@@ -121,10 +121,36 @@ export async function getModelPerformanceEvaluation(req: AuthRequest, res: Respo
         { fpr: 0.1, tpr: 0.45 },
         { fpr: 0.2, tpr: 0.72 },
         { fpr: 0.4, tpr: 0.88 },
-        { fpr: 0.7, tpr: 0.95 },
-        { fpr: 1.0, tpr: 1.0 }
-      ]
+export async function getExplicitRevenueMetrics(req: AuthRequest, res: Response) {
+  try {
+    if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+    const merchantId = new Types.ObjectId(req.user.merchantId);
+
+    const failedTxs = await Transaction.find({ merchantId, status: 'failed' });
+    const capturedTxs = await Transaction.find({ merchantId, status: 'captured' });
+
+    let revenueAtRisk = 0;
+    let expectedRecovery = 0;
+
+    for (const t of failedTxs) {
+      const score = t.recoveryScore || 50;
+      const prob = t.recoveryProbability || (score / 100);
+      revenueAtRisk += Math.round(t.amount * (score / 100));
+      expectedRecovery += Math.round(t.amount * prob);
+    }
+
+    const actualRecovery = capturedTxs.reduce((sum, t) => sum + t.amount, 0);
+
+    return res.json({
+      revenueAtRisk,
+      expectedRecovery,
+      actualRecovery,
+      currency: 'INR',
+      timestamp: new Date().toISOString()
     });
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Failed to fetch revenue metrics.' });
   }
 }
+
 
