@@ -5,6 +5,10 @@ let mongoMemoryServer: MongoMemoryServer | null = null;
 
 export async function connectDB() {
   try {
+    if (mongoose.connection.readyState !== 0) {
+      return;
+    }
+
     let mongoUri = process.env.MONGO_URI;
 
     // Check if we should use an in-memory database as fallback
