@@ -51,4 +51,8 @@ const AgentRunSchema = new Schema<IAgentRun>({
   triggeredBy: { type: String, enum: ['manual', 'auto'], default: 'manual' }
 }, { timestamps: true });
 
+AgentRunSchema.index({ merchantId: 1, createdAt: -1 });
+AgentRunSchema.index({ merchantId: 1, selectedStrategy: 1 });
+AgentRunSchema.index({ merchantId: 1, outcome: 1 });
+
 export const AgentRun = model<IAgentRun>('AgentRun', AgentRunSchema);

@@ -50,4 +50,8 @@ const RecoveryCaseSchema = new Schema<IRecoveryCase>({
   timestamps: true
 });
 
+RecoveryCaseSchema.index({ merchantId: 1, status: 1, createdAt: -1 });
+RecoveryCaseSchema.index({ merchantId: 1, humanApprovalStatus: 1 });
+RecoveryCaseSchema.index({ merchantId: 1, customerId: 1 });
+
 export const RecoveryCase = model<IRecoveryCase>('RecoveryCase', RecoveryCaseSchema);

@@ -23,5 +23,7 @@ const CustomerSchema = new Schema<ICustomer>({
 });
 
 CustomerSchema.index({ merchantId: 1, customerIdStr: 1 }, { unique: true });
+CustomerSchema.index({ merchantId: 1, ltv: -1 });
+CustomerSchema.index({ merchantId: 1, email: 1 });
 
 export const Customer = model<ICustomer>('Customer', CustomerSchema);

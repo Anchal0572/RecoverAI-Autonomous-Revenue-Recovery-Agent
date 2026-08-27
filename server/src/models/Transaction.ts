@@ -57,5 +57,9 @@ const TransactionSchema = new Schema<ITransaction>({
 });
 
 TransactionSchema.index({ merchantId: 1, transactionIdStr: 1 }, { unique: true });
+TransactionSchema.index({ merchantId: 1, status: 1, createdAt: -1 });
+TransactionSchema.index({ merchantId: 1, recoveryStatus: 1, createdAt: -1 });
+TransactionSchema.index({ merchantId: 1, customerId: 1 });
+TransactionSchema.index({ merchantId: 1, createdAt: -1 });
 
 export const Transaction = model<ITransaction>('Transaction', TransactionSchema);

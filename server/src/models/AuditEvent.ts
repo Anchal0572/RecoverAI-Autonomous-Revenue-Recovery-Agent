@@ -53,4 +53,7 @@ const AuditEventSchema = new Schema<IAuditEvent>({
   timestamps: true
 });
 
+AuditEventSchema.index({ merchantId: 1, createdAt: -1 });
+AuditEventSchema.index({ merchantId: 1, actionType: 1, createdAt: -1 });
+
 export const AuditEvent = model<IAuditEvent>('AuditEvent', AuditEventSchema);
