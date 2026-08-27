@@ -241,3 +241,92 @@ export async function fetchRevenueMetrics() {
   });
   return res.json();
 }
+
+// ── Phase 7 — Advanced Hackathon Feature APIs ──
+
+// Leakage Detection
+export async function fetchLeakageAlerts() {
+  const res = await fetch(`${API_BASE}/leakage/alerts`, {
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+export async function runLeakageDetection() {
+  const res = await fetch(`${API_BASE}/leakage/detect`, {
+    method: 'POST',
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+// What-If Simulator
+export async function runWhatIfSimulation(params: {
+  recoveryProbability?: number;
+  retrySuccessRate?: number;
+  recoveryWindowDays?: number;
+  retryLimit?: number;
+  strategy?: string;
+}) {
+  const res = await fetch(`${API_BASE}/simulator/what-if`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(params)
+  });
+  return res.json();
+}
+
+// Strategy Comparison
+export async function compareStrategies(strategies: string[]) {
+  const res = await fetch(`${API_BASE}/simulator/compare-strategies`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ strategies })
+  });
+  return res.json();
+}
+
+// Customer Segmentation
+export async function fetchCustomerSegments() {
+  const res = await fetch(`${API_BASE}/segmentation/segments`, {
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+// RAG Knowledge Base
+export async function queryKnowledgeBase(query: string, category?: string) {
+  const res = await fetch(`${API_BASE}/rag/query`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ query, category })
+  });
+  return res.json();
+}
+
+export async function fetchKnowledgeDocuments(category?: string) {
+  const qs = category ? `?category=${category}` : '';
+  const res = await fetch(`${API_BASE}/rag/documents${qs}`, {
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+// Command Center
+export async function fetchCommandCenterData() {
+  const res = await fetch(`${API_BASE}/command-center`, {
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+// Hinglish Intent Detection
+export async function detectIntent(message: string) {
+  const res = await fetch(`${API_BASE}/intent/detect`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ message })
+  });
+  return res.json();
+}
+
