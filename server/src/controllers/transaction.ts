@@ -44,12 +44,15 @@ export async function getTransactions(req: AuthRequest, res: Response) {
       ];
     }
 
+    const safeLimit = Math.min(Math.max(1, Number(limit) || 20), 100);
+    const safeOffset = Math.max(0, Number(offset) || 0);
+
     const total = await Transaction.countDocuments(query);
     const data = await Transaction.find(query)
       .populate('customerId')
       .sort({ createdAt: -1 })
-      .skip(Number(offset))
-      .limit(Number(limit));
+      .skip(safeOffset)
+      .limit(safeLimit);
 
     // Map properties to match mock structure frontend expects
     const formattedData = data.map((t: any) => ({

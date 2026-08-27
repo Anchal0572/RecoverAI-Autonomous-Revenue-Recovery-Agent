@@ -25,11 +25,14 @@ export async function getAuditLogs(req: AuthRequest, res: Response) {
       query.actionType = actionType;
     }
 
+    const safeLimit = Math.min(Math.max(1, Number(limit) || 50), 200);
+    const safeOffset = Math.max(0, Number(offset) || 0);
+
     const total = await AuditEvent.countDocuments(query);
     const logs = await AuditEvent.find(query)
       .sort({ timestamp: -1 })
-      .skip(Number(offset))
-      .limit(Number(limit));
+      .skip(safeOffset)
+      .limit(safeLimit);
 
     const formatted = logs.map(l => ({
       id: l._id.toString(),
