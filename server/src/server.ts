@@ -36,17 +36,24 @@ dotenv.config();
 const app = express();
 
 // Security Middlewares
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for API server or allow frontend origins
+  crossOriginEmbedderPolicy: false
+}));
+
 app.use(cors({
-  origin: '*',
+  origin: process.env.CORS_ORIGIN || '*',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-razorpay-signature', 'x-signature']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-razorpay-signature', 'x-signature'],
+  credentials: true
 }));
 
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 150,
+  max: 250,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: { error: 'Too many requests from this IP, please try again later.' }
 });
 app.use(limiter);
