@@ -18,6 +18,14 @@ import seedRouter from './routes/seed';
 import agentRouter from './routes/agentRoutes';
 import webhookRouter from './routes/webhookRoutes';
 
+// Phase 7 — Advanced Hackathon Features
+import leakageRouter from './routes/leakage';
+import simulatorRouter from './routes/simulator';
+import segmentationRouter from './routes/segmentation';
+import ragRouter from './routes/rag';
+import commandCenterRouter from './routes/commandCenter';
+import intentRouter from './routes/intent';
+
 // Import controllers for standalone endpoints
 import { getMonitoringStatus } from './controllers/monitoring';
 import { getAgentAnalysis } from './controllers/case';
@@ -65,13 +73,21 @@ app.use('/api/v1/seed', seedRouter);
 app.use('/api/v1/agent', agentRouter);
 app.use('/api/v1/webhooks', webhookRouter);
 
+// Phase 7 — Advanced Hackathon Features
+app.use('/api/v1/leakage', leakageRouter);
+app.use('/api/v1/simulator', simulatorRouter);
+app.use('/api/v1/segmentation', segmentationRouter);
+app.use('/api/v1/rag', ragRouter);
+app.use('/api/v1/command-center', commandCenterRouter);
+app.use('/api/v1/intent', intentRouter);
+
 // Standalone v1 routes matching frontend client expectations
 app.get('/api/v1/monitoring/status', authMiddleware as any, getMonitoringStatus as any);
 app.post('/api/v1/agent/analyze/:id', authMiddleware as any, getAgentAnalysis as any);
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', version: '2.0.0', service: 'RecoverAI Enterprise TS Server' });
+  res.json({ status: 'ok', version: '7.0.0', service: 'RecoverAI Enterprise TS Server' });
 });
 
 // Global Error Handler
