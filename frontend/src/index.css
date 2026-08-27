@@ -1,68 +1,75 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #0a0a0b;
-  --color-surface: #121214;
-  --color-surfaceHover: #1c1c1f;
-  --color-surface-hover: #1c1c1f;
-  --color-border: #27272a;
+  --color-background: #0b0f17;
+  --color-surface: #111827;
+  --color-surfaceHover: #1f2937;
+  --color-surface-hover: #1f2937;
+  --color-border: #1e293b;
   
-  --color-primary: #3b82f6;
-  --color-primary-hover: #2563eb;
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-accent: #0ea5e9;
   
   --color-success: #10b981;
-  --color-success-bg: rgba(16, 185, 129, 0.1);
+  --color-success-bg: rgba(16, 185, 129, 0.12);
   
   --color-warning: #f59e0b;
-  --color-warning-bg: rgba(245, 158, 11, 0.1);
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
   
   --color-danger: #ef4444;
-  --color-danger-bg: rgba(239, 68, 68, 0.1);
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
   
-  --font-sans: 'Inter', sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 
 @layer base {
   :root {
-    --background: #0a0a0b;
-    --foreground: #f4f4f5;
+    --background: #0b0f17;
+    --foreground: #f8fafc;
   }
 
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: 'Inter', -apple-system, sans-serif;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
+@utility human-card {
+  @apply bg-surface/90 backdrop-blur-xl border border-border rounded-2xl shadow-xl transition-all duration-200 hover:border-slate-700;
+}
+
 @utility glass-card {
-  @apply bg-surface/80 backdrop-blur-md border border-border rounded-xl shadow-lg;
+  @apply bg-surface/80 backdrop-blur-md border border-border rounded-2xl shadow-lg transition-all duration-200;
 }
 
 @utility btn-primary {
-  @apply px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-colors;
+  @apply px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/20 transition-all duration-200 active:scale-[0.98];
 }
 
 @utility btn-secondary {
-  @apply px-4 py-2 bg-surface hover:bg-surfaceHover border border-border text-gray-200 rounded-lg font-medium transition-colors;
+  @apply px-5 py-2.5 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-slate-200 hover:text-white rounded-xl font-semibold transition-all duration-200 active:scale-[0.98];
 }
 
 @utility input-field {
-  @apply w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all;
+  @apply w-full px-3.5 py-2.5 bg-slate-900/90 border border-slate-800 rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all;
 }
 
+/* Custom Scrollbars */
 .custom-sidebar-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 .custom-sidebar-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 .custom-sidebar-scrollbar::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #334155;
   border-radius: 4px;
 }
 .custom-sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #475569;
 }
-
