@@ -26,6 +26,9 @@ import ragRouter from './routes/rag';
 import commandCenterRouter from './routes/commandCenter';
 import intentRouter from './routes/intent';
 
+// Phase 10 — Local Demo & Payment Recovery
+import demoRouter from './routes/demoRoutes';
+
 // Import controllers for standalone endpoints
 import { getMonitoringStatus } from './controllers/monitoring';
 import { getAgentAnalysis } from './controllers/case';
@@ -87,6 +90,10 @@ app.use('/api/v1/segmentation', segmentationRouter);
 app.use('/api/v1/rag', ragRouter);
 app.use('/api/v1/command-center', commandCenterRouter);
 app.use('/api/v1/intent', intentRouter);
+
+// Phase 10 — Local Demo & Payment Recovery
+app.use('/api/v1/demo', demoRouter);
+app.use('/api/v1/config', demoRouter);
 
 // Standalone v1 routes matching frontend client expectations
 app.get('/api/v1/monitoring/status', authMiddleware as any, getMonitoringStatus as any);

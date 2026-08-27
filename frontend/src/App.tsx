@@ -23,6 +23,10 @@ import StrategyComparison from './pages/StrategyComparison';
 import CustomerSegments from './pages/CustomerSegments';
 import KnowledgeBase from './pages/KnowledgeBase';
 
+// Phase 10 — Local Demo & Payment Recovery Portal
+import DemoControlCenter from './pages/DemoControlCenter';
+import DemoPayment from './pages/DemoPayment';
+
 function App() {
   return (
     <BrowserRouter>
@@ -49,6 +53,9 @@ function App() {
           <Route path="/strategy-comparison" element={<StrategyComparison />} />
           <Route path="/customer-segments" element={<CustomerSegments />} />
           <Route path="/knowledge-base" element={<KnowledgeBase />} />
+          {/* Phase 10 Routes */}
+          <Route path="/demo-center" element={<DemoControlCenter />} />
+          <Route path="/demo-payment/:id" element={<DemoPayment />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -3,13 +3,14 @@ import {
   Home, LayoutDashboard, LineChart, List, FileSearch, 
   BrainCircuit, Activity, Settings, ShieldCheck,
   History, Power, Radio, AlertTriangle, BarChart3,
-  Users, BookOpen
+  Users, BookOpen, Zap
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const navItems = [
   { path: '/', icon: Home, label: 'Home', section: 'OVERVIEW' },
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', section: 'OVERVIEW' },
+  { path: '/demo-center', icon: Zap, label: 'Demo Center', badge: 'DEMO', section: 'OVERVIEW' },
   { path: '/command-center', icon: Radio, label: 'Command Center', badge: 'NEW', section: 'OVERVIEW' },
   
   { path: '/analytics', icon: LineChart, label: 'Risk Analytics', section: 'INSIGHTS' },

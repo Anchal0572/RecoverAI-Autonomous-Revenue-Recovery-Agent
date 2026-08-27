@@ -26,7 +26,7 @@ export async function getDashboardSummary(req: AuthRequest, res: Response) {
           totalAmount: { $sum: '$amount' },
           capturedAmount: { $sum: { $cond: [{ $eq: ['$status', 'captured'] }, '$amount', 0] } },
           failedAmount: { $sum: { $cond: [{ $eq: ['$status', 'failed'] }, '$amount', 0] } },
-          recoveredAmount: { $sum: { $cond: [{ $eq: ['$recoveryStatus', 'RECOVERED'] }, '$amount', 0] } },
+          recoveredAmount: { $sum: { $cond: [{ $and: [{ $eq: ['$status', 'failed'] }, { $eq: ['$recoveryStatus', 'RECOVERED'] }] }, '$amount', 0] } },
           inProgressAmount: { $sum: { $cond: [{ $eq: ['$recoveryStatus', 'IN_PROGRESS'] }, '$amount', 0] } },
           
           avgRecoveryScore: { $avg: '$recoveryScore' }
@@ -75,9 +75,9 @@ export async function getDashboardSummary(req: AuthRequest, res: Response) {
       {
         $group: {
           _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-          recovered: { $sum: { $cond: [{ $eq: ['$recoveryStatus', 'RECOVERED'] }, 1, 0] } },
+          recovered: { $sum: { $cond: [{ $and: [{ $eq: ['$status', 'failed'] }, { $eq: ['$recoveryStatus', 'RECOVERED'] }] }, 1, 0] } },
           failed: { $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0] } },
-          amount: { $sum: { $cond: [{ $eq: ['$recoveryStatus', 'RECOVERED'] }, '$amount', 0] } }
+          amount: { $sum: { $cond: [{ $and: [{ $eq: ['$status', 'failed'] }, { $eq: ['$recoveryStatus', 'RECOVERED'] }] }, '$amount', 0] } }
         }
       },
       { $sort: { _id: 1 } }
@@ -95,6 +95,7 @@ export async function getDashboardSummary(req: AuthRequest, res: Response) {
     });
 
     const recoveryRate = stats.failedAmount > 0 ? Math.round((stats.recoveredAmount / stats.failedAmount) * 100) : 0;
+    const revenueAtRisk = Math.max(0, stats.failedAmount - stats.recoveredAmount);
 
     return res.json({
       counts: {
@@ -112,7 +113,7 @@ export async function getDashboardSummary(req: AuthRequest, res: Response) {
         recovered: stats.recoveredAmount,
         inProgress: stats.inProgressAmount,
         recovery_rate: recoveryRate,
-        revenue_at_risk: stats.failedAmount - stats.recoveredAmount,
+        revenue_at_risk: revenueAtRisk,
         expected_recovery: Math.round(expectedRecovery)
       },
       avgRecoveryScore: Math.round(stats.avgRecoveryScore || 0),

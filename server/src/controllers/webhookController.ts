@@ -72,8 +72,7 @@ export async function handleRazorpayWebhook(req: Request, res: Response) {
   if (!merchant) {
     merchant = await Merchant.create({
       name: 'Acme Enterprise',
-      email: 'admin@acme.com',
-      apiKey: 'rzp_test_key_12345'
+      workspaceId: `ws_webhook_${Date.now()}`
     });
   }
 

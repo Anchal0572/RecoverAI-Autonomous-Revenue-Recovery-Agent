@@ -330,3 +330,75 @@ export async function detectIntent(message: string) {
   return res.json();
 }
 
+// Phase 10 — Local Demo & Payment Recovery
+export async function fetchPaymentConfig() {
+  const res = await fetch(`${API_BASE}/config/config`);
+  return res.json();
+}
+
+export async function fetchRecoveryCase(id: string) {
+  const res = await fetch(`${API_BASE}/recovery-cases/${id}`, {
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+export async function createDemoFailedPayment(data = {}) {
+  const res = await fetch(`${API_BASE}/demo/create-failed-payment`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+export async function runDemoRecoveryAI(transactionId: string) {
+  const res = await fetch(`${API_BASE}/demo/run-recovery-ai/${transactionId}`, {
+    method: 'POST',
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+export async function executeDemoRecoveryAction(recoveryCaseId: string) {
+  const res = await fetch(`${API_BASE}/demo/execute-recovery/${recoveryCaseId}`, {
+    method: 'POST',
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+export async function simulateDemoPaymentSuccess(recoveryCaseId: string) {
+  const res = await fetch(`${API_BASE}/demo/simulate-payment-success/${recoveryCaseId}`, {
+    method: 'POST',
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+export async function simulateDemoPaymentFailure(recoveryCaseId: string) {
+  const res = await fetch(`${API_BASE}/demo/simulate-payment-failure/${recoveryCaseId}`, {
+    method: 'POST',
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+export async function runFullRecoveryDemo(data = {}) {
+  const res = await fetch(`${API_BASE}/demo/run-full-scenario`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+export async function resetDemoState() {
+  const res = await fetch(`${API_BASE}/demo/reset`, {
+    method: 'POST',
+    headers: getHeaders()
+  });
+  return res.json();
+}
+
+

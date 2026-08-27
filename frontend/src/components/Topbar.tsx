@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Bell, Settings, LogOut, ChevronDown, Shield, UserCircle, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
+import { Bell, Settings, LogOut, ChevronDown, Shield, UserCircle, CheckCircle2, AlertTriangle, Info, Zap } from 'lucide-react';
+import { fetchPaymentConfig } from '../api';
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
+  '/demo-center': 'Demo Control Center',
   '/command-center': 'AI Command Center',
   '/analytics': 'Revenue Risk Analytics',
   '/leakage-detection': 'Revenue Leakage Detection',
@@ -23,6 +25,7 @@ const pageTitles: Record<string, string> = {
 
 const pageSubtitles: Record<string, string> = {
   '/dashboard': 'Overview of your revenue recovery',
+  '/demo-center': 'Interactive recovery simulator & payment testing',
   '/command-center': 'Real-time AI operations overview',
   '/analytics': 'Risk distribution & recovery insights',
   '/leakage-detection': 'Anomaly detection & leak alerts',
@@ -94,6 +97,16 @@ export default function Topbar() {
   const displayEmail = storedUser?.email || '';
   const initials = displayName.slice(0, 2).toUpperCase();
 
+  const [paymentMode, setPaymentMode] = useState<'demo' | 'razorpay_test'>('demo');
+
+  useEffect(() => {
+    fetchPaymentConfig()
+      .then(cfg => {
+        if (cfg?.paymentMode) setPaymentMode(cfg.paymentMode);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <header className="h-16 bg-surface/80 backdrop-blur-md border-b border-border flex items-center justify-between px-8 sticky top-0 z-40">
       {/* Left: Page title */}
@@ -102,8 +115,30 @@ export default function Topbar() {
         <span className="text-xs text-gray-500">{subtitle}</span>
       </div>
 
-      {/* Right: Bell + Admin */}
+      {/* Right: Payment Mode + Demo Center + Bell + Admin */}
       <div className="flex items-center gap-3">
+        {/* Payment Environment Badge */}
+        <button
+          onClick={() => navigate('/demo-center')}
+          className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+            paymentMode === 'demo'
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
+              : 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
+          }`}
+          title="Click to open Demo Control Center"
+        >
+          <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
+          <span>{paymentMode === 'demo' ? 'DEMO MODE' : 'RAZORPAY TEST'}</span>
+        </button>
+
+        {/* Demo Center Action Button */}
+        <button
+          id="topbar-demo-center-btn"
+          onClick={() => navigate('/demo-center')}
+          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-xs font-semibold transition-colors"
+        >
+          <Zap className="w-3.5 h-3.5" /> Demo Center
+        </button>
 
         {/* ── Bell / Notifications ── */}
         <div className="relative" ref={bellRef}>
