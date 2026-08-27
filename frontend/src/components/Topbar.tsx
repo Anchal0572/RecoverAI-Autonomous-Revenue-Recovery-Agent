@@ -1,14 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Bell, User, Settings, LogOut, ChevronDown, Shield, UserCircle, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
+import { Bell, Settings, LogOut, ChevronDown, Shield, UserCircle, CheckCircle2, AlertTriangle, Info } from 'lucide-react';
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
+  '/command-center': 'AI Command Center',
   '/analytics': 'Revenue Risk Analytics',
+  '/leakage-detection': 'Revenue Leakage Detection',
+  '/customer-segments': 'Customer Segmentation',
   '/model-performance': 'ML Engine Performance',
   '/cases': 'Recovery Cases',
   '/decision-center': 'AI Decision Center',
   '/simulator': 'Recovery Simulator',
+  '/strategy-comparison': 'Strategy Comparison',
+  '/knowledge-base': 'RAG Knowledge Base',
   '/agent-control': 'Agent Control Center',
   '/policies': 'Policies & Guardrails',
   '/audit': 'Audit Trail',
@@ -18,11 +23,16 @@ const pageTitles: Record<string, string> = {
 
 const pageSubtitles: Record<string, string> = {
   '/dashboard': 'Overview of your revenue recovery',
+  '/command-center': 'Real-time AI operations overview',
   '/analytics': 'Risk distribution & recovery insights',
+  '/leakage-detection': 'Anomaly detection & leak alerts',
+  '/customer-segments': 'Targeted recovery segment profiles',
   '/model-performance': 'Autonomous Revenue Recovery',
   '/cases': 'Active recovery pipeline',
   '/decision-center': 'Autonomous Decisions',
-  '/simulator': 'Test failure scenarios',
+  '/simulator': 'Test failure scenarios & what-if analysis',
+  '/strategy-comparison': 'Empirical strategy benchmark',
+  '/knowledge-base': 'Policy & playbook search engine',
   '/agent-control': 'Agent status & configuration',
   '/policies': 'Risk thresholds & guardrails',
   '/audit': 'Autonomous Revenue Recovery',

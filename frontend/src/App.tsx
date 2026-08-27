@@ -16,6 +16,13 @@ import Integrations from './pages/Integrations';
 import Settings from './pages/Settings';
 import ModelPerformance from './pages/ModelPerformance';
 
+// Phase 7 — Advanced Hackathon Features
+import CommandCenter from './pages/CommandCenter';
+import LeakageDetection from './pages/LeakageDetection';
+import StrategyComparison from './pages/StrategyComparison';
+import CustomerSegments from './pages/CustomerSegments';
+import KnowledgeBase from './pages/KnowledgeBase';
+
 function App() {
   return (
     <BrowserRouter>
@@ -36,6 +43,12 @@ function App() {
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/model-performance" element={<ModelPerformance />} />
+          {/* Phase 7 Routes */}
+          <Route path="/command-center" element={<CommandCenter />} />
+          <Route path="/leakage-detection" element={<LeakageDetection />} />
+          <Route path="/strategy-comparison" element={<StrategyComparison />} />
+          <Route path="/customer-segments" element={<CustomerSegments />} />
+          <Route path="/knowledge-base" element={<KnowledgeBase />} />
         </Route>
       </Routes>
     </BrowserRouter>

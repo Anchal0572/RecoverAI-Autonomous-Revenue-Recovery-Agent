@@ -11,7 +11,8 @@ export default function CaseDetails() {
 
   const { data: tx, isLoading } = useQuery({
     queryKey: ['transaction', id],
-    queryFn: () => fetchTransaction(id)
+    queryFn: () => fetchTransaction(id || ''),
+    enabled: !!id
   });
 
   if (isLoading) {

@@ -2,20 +2,27 @@ import { NavLink } from 'react-router-dom';
 import { 
   Home, LayoutDashboard, LineChart, List, FileSearch, 
   BrainCircuit, Activity, Settings, ShieldCheck,
-  History, Power
+  History, Power, Radio, AlertTriangle, BarChart3,
+  Users, BookOpen
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const navItems = [
   { path: '/', icon: Home, label: 'Home', section: 'OVERVIEW' },
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', section: 'OVERVIEW' },
+  { path: '/command-center', icon: Radio, label: 'Command Center', badge: 'NEW', section: 'OVERVIEW' },
+  
   { path: '/analytics', icon: LineChart, label: 'Risk Analytics', section: 'INSIGHTS' },
   { path: '/model-performance', icon: FileSearch, label: 'Model Performance', section: 'INSIGHTS' },
+  { path: '/leakage-detection', icon: AlertTriangle, label: 'Leakage Detection', badge: 'NEW', section: 'INSIGHTS' },
+  { path: '/customer-segments', icon: Users, label: 'Customer Segments', badge: 'NEW', section: 'INSIGHTS' },
   
   { path: '/cases', icon: List, label: 'Recovery Cases', badge: '12', section: 'RECOVERY' },
   { path: '/decision-center', icon: BrainCircuit, label: 'AI Decision Center', section: 'RECOVERY' },
   
   { path: '/simulator', icon: Activity, label: 'Simulator', section: 'TOOLS' },
+  { path: '/strategy-comparison', icon: BarChart3, label: 'Strategy Compare', badge: 'NEW', section: 'TOOLS' },
+  { path: '/knowledge-base', icon: BookOpen, label: 'Knowledge Base', badge: 'NEW', section: 'TOOLS' },
   
   { path: '/agent-control', icon: Power, label: 'Agent Control', section: 'SYSTEM' },
   { path: '/policies', icon: ShieldCheck, label: 'Policies & Guardrails', section: 'SYSTEM' },
@@ -68,7 +75,12 @@ export default function Sidebar() {
                 <item.icon className="w-4 h-4" />
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className="ml-auto bg-danger text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                  <span className={cn(
+                    "ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center",
+                    item.badge === 'NEW'
+                      ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
+                      : "bg-danger text-white"
+                  )}>
                     {item.badge}
                   </span>
                 )}
@@ -83,7 +95,7 @@ export default function Sidebar() {
           <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
           <div>
             <div className="text-xs font-semibold text-success">Agent Active</div>
-            <div className="text-[10px] text-gray-400">v4.0 • Autonomous Engine</div>
+            <div className="text-[10px] text-gray-400">v7.0 • Phase 7 Engine</div>
           </div>
         </div>
       </div>

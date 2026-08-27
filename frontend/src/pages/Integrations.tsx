@@ -6,7 +6,7 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import {
-  CheckCircle2, Copy, Shield, Zap, RefreshCw, Loader2, AlertTriangle, Activity, Lock, ArrowUpRight
+  CheckCircle2, Copy, Shield, Zap, RefreshCw, Loader2, AlertTriangle, Activity, Lock
 } from 'lucide-react';
 
 export default function Integrations() {
@@ -17,7 +17,7 @@ export default function Integrations() {
   const [eventType, setEventType] = useState('payment.failed');
   const [lastTriggerResult, setLastTriggerResult] = useState<any>(null);
 
-  const { data: statusData, isLoading, refetch } = useQuery({
+  const { data: statusData, refetch } = useQuery({
     queryKey: ['webhookStatus'],
     queryFn: fetchWebhookStatus,
     refetchInterval: 5000

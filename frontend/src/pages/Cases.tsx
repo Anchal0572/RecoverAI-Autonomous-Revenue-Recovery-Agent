@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { fetchTransactions, fetchApprovalQueue, approveCase, rejectCase, fetchRevenueMetrics } from '../api';
 import {
-  Search, Filter, ArrowUpDown, AlertCircle, CheckCircle2, Clock, ShieldAlert, Check, X, Shield, TrendingUp, AlertTriangle, Loader2
+  Search, ArrowUpDown, AlertCircle, CheckCircle2, Clock, ShieldAlert, Check, X, TrendingUp, Loader2
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -22,7 +22,7 @@ export default function Cases() {
     queryFn: () => fetchTransactions(filter !== 'ALL' ? { status: filter } : {})
   });
 
-  const { data: queueData, isLoading: isQueueLoading } = useQuery({
+  const { data: queueData } = useQuery({
     queryKey: ['approvalQueue'],
     queryFn: fetchApprovalQueue,
     refetchInterval: 5000
@@ -79,7 +79,7 @@ export default function Cases() {
         </div>
         <div className="flex items-center gap-3">
           <Button
-            variant={activeTab === 'APPROVAL_QUEUE' ? 'primary' : 'secondary'}
+            variant={activeTab === 'APPROVAL_QUEUE' ? 'default' : 'secondary'}
             onClick={() => setActiveTab('APPROVAL_QUEUE')}
             className="relative gap-2 text-xs"
           >
@@ -92,7 +92,7 @@ export default function Cases() {
             )}
           </Button>
           <Button
-            variant={activeTab === 'ALL_CASES' ? 'primary' : 'secondary'}
+            variant={activeTab === 'ALL_CASES' ? 'default' : 'secondary'}
             onClick={() => setActiveTab('ALL_CASES')}
             className="text-xs"
           >

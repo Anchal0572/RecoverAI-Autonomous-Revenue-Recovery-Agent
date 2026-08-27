@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTransactions, analyzeTransaction } from '../api';
-import { BrainCircuit, Search, ChevronRight, CheckCircle2, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { BrainCircuit, Search, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 
@@ -23,7 +23,7 @@ export default function DecisionCenter() {
 
   const { data: analysis, isLoading: analyzing } = useQuery({
     queryKey: ['analyze', selectedTxId],
-    queryFn: () => analyzeTransaction(selectedTxId),
+    queryFn: () => analyzeTransaction(selectedTxId || ''),
     enabled: !!selectedTxId
   });
 

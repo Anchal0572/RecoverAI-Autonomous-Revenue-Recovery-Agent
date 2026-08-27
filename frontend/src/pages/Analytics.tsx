@@ -5,7 +5,6 @@ import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
 
 export default function Analytics() {
   const { data: summary, isLoading: summaryLoading } = useQuery({

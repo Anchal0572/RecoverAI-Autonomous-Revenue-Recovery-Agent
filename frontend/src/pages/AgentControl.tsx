@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchAgentStatus, fetchAgentRuns, fetchTransactions, runAgentPipeline, testIndividualAgent } from '../api';
 import {
-  Power, Cpu, Zap, Shield, Play, CheckCircle2, XCircle,
+  Cpu, Zap, Shield, Play, CheckCircle2, XCircle,
   Clock, Activity, BrainCircuit, Search, Target, Eye, BarChart3,
-  ChevronRight, AlertTriangle, Loader2, Wrench
+  ChevronRight, Loader2, Wrench
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
