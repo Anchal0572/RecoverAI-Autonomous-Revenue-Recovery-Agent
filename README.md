@@ -1,11 +1,11 @@
-# RecoverAI — Autonomous Revenue Recovery Agent
+# RevPulse — Autonomous Revenue Engine
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/badge/Build-Passing-emerald.svg)](https://github.com/Anchal0572/RecoverAI-Autonomous-Revenue-Recovery-Agent)
+[![Build Status](https://img.shields.io/badge/Build-Passing-emerald.svg)](https://github.com/Anchal0572/RevPulse-Autonomous-Revenue-Engine)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue.svg)](https://www.typescriptlang.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB.svg)](https://react.dev/)
 
-> **RecoverAI** is an enterprise-grade autonomous fintech system that detects failed payment transactions, analyzes root causes, predicts recovery probabilities using machine learning, and executes policy-governed recovery actions without manual intervention.
+> **RevPulse** is an enterprise-grade autonomous fintech system that detects failed payment transactions, analyzes root causes, predicts recovery probabilities using machine learning, and executes policy-governed recovery actions without manual intervention.
 
 ---
 

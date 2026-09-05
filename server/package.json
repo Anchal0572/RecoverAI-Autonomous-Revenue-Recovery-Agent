@@ -1,7 +1,7 @@
 {
-  "name": "recoverai-server",
+  "name": "revpulse-server",
   "version": "1.0.0",
-  "description": "Production TypeScript Backend for RecoverAI",
+  "description": "Production TypeScript Backend for RevPulse — Autonomous Revenue Engine",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
