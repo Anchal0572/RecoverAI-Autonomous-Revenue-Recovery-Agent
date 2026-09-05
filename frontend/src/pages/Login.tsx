@@ -3,13 +3,32 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { loginUser } from '../api';
+import BrandLogo from '../components/BrandLogo';
 
 export default function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@company.com');
+  const [password, setPassword] = useState('Password123!');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleDemoQuickLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const res = await loginUser({ email: 'admin@company.com', password: 'Password123!' });
+      setLoading(false);
+      if (res.token) {
+        localStorage.setItem('token', res.token);
+        navigate('/dashboard');
+      } else {
+        setError(res.error || 'Demo login failed');
+      }
+    } catch {
+      setLoading(false);
+      setError('Network error during quick login');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,14 +64,32 @@ export default function Login() {
       <div className="absolute -top-[300px] -right-[300px] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
 
       <Link to="/" className="mb-8 flex items-center gap-2">
-        <div className="w-8 h-8 bg-gradient-to-br from-primary to-cyan-400 rounded-lg flex items-center justify-center text-white font-bold">⚡</div>
-        <span className="font-extrabold text-xl tracking-tight text-white">RecoverAI</span>
+        <BrandLogo size="lg" badgeText="ENTERPRISE" />
       </Link>
 
-      <div className="glass-card w-full max-w-md p-8 relative z-10">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-white mb-2">Welcome back</h1>
-          <p className="text-gray-400 text-sm">Enter your credentials to access your agent</p>
+      <div className="glass-card w-full max-w-md p-8 relative z-10 border border-slate-700/60 shadow-2xl rounded-2xl bg-slate-900/80 backdrop-blur-xl">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-white mb-2">Welcome to RevPulse</h1>
+          <p className="text-gray-400 text-sm">Autonomous Revenue Recovery & Payment Diagnostics</p>
+        </div>
+
+        {/* Quick Demo Access banner */}
+        <div className="mb-6 p-3.5 bg-blue-950/60 border border-blue-500/40 rounded-xl flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              Evaluation Mode Ready
+            </span>
+            <span className="text-[11px] text-blue-200 bg-blue-900/80 px-2 py-0.5 rounded font-mono">admin@company.com</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleDemoQuickLogin}
+            disabled={loading}
+            className="w-full py-2 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-lg shadow-md transition-all flex items-center justify-center gap-2"
+          >
+            ⚡ Enter Live Dashboard (1-Click)
+          </button>
         </div>
 
         {error && (

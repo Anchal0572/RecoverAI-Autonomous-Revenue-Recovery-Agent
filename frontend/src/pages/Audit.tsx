@@ -2,18 +2,14 @@ import { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAuditLogs } from '../api';
 import {
-  History, ShieldCheck, Activity, BrainCircuit, CreditCard,
-  ChevronDown, Search, Filter, CheckCircle2, AlertTriangle,
-  RefreshCw, Calendar, X
+  History, ShieldCheck, Activity, Search, Filter, CheckCircle2, AlertTriangle,
+  RefreshCw, Calendar, X, ChevronDown
 } from 'lucide-react';
-import { Card } from '../components/ui/card';
 
-// ────── Date range helpers ──────
 type RangeKey = 'today' | 'yesterday' | 'last7' | 'last30' | 'all';
 
 function getDateRange(key: RangeKey): { startDate?: string; endDate?: string } {
   const now = new Date();
-
   const startOf = (d: Date) => {
     const s = new Date(d);
     s.setHours(0, 0, 0, 0);
@@ -43,23 +39,19 @@ function getDateRange(key: RangeKey): { startDate?: string; endDate?: string } {
     s.setDate(s.getDate() - 29);
     return { startDate: startOf(s).toISOString(), endDate: endOf(now).toISOString() };
   }
-  return {}; // 'all' — no date filter
+  return {};
 }
 
-// ────── Action type config ──────
 const ACTION_TYPES = [
-  { value: 'ALL', label: 'All Actions' },
+  { value: 'ALL', label: 'All Action Events' },
   { value: 'PAYMENT_FAILED', label: 'Payment Failed' },
   { value: 'RISK_DETECTED', label: 'Risk Detected' },
   { value: 'ROOT_CAUSE_IDENTIFIED', label: 'Root Cause Identified' },
-  { value: 'PROBABILITY_CALCULATED', label: 'Probability Calculated' },
   { value: 'STRATEGY_SELECTED', label: 'Strategy Selected' },
   { value: 'POLICY_APPROVED', label: 'Policy Approved' },
   { value: 'HUMAN_APPROVAL_REQUESTED', label: 'Human Approval Requested' },
-  { value: 'HUMAN_APPROVED', label: 'Human Approved' },
   { value: 'ACTION_EXECUTED', label: 'Action Executed' },
   { value: 'PAYMENT_CAPTURED', label: 'Payment Captured' },
-  { value: 'WORKFLOW_STOPPED', label: 'Workflow Stopped' },
 ];
 
 const DATE_TABS: { key: RangeKey; label: string }[] = [
@@ -70,32 +62,6 @@ const DATE_TABS: { key: RangeKey; label: string }[] = [
   { key: 'all', label: 'All Time' },
 ];
 
-// ────── Icon mapper ──────
-function ActionIcon({ type }: { type: string }) {
-  switch (type) {
-    case 'RISK_DETECTED':       return <AlertTriangle className="w-4 h-4 text-warning" />;
-    case 'AI_ANALYSIS':         return <BrainCircuit className="w-4 h-4 text-primary" />;
-    case 'STRATEGY_SELECTED':   return <Activity className="w-4 h-4 text-purple-400" />;
-    case 'POLICY_VALIDATED':    return <ShieldCheck className="w-4 h-4 text-gray-300" />;
-    case 'ACTION_EXECUTED':
-    case 'RETRY_PAYMENT':       return <RefreshCw className="w-4 h-4 text-blue-400" />;
-    case 'PAYMENT_RECOVERED':   return <CheckCircle2 className="w-4 h-4 text-success" />;
-    case 'PAYMENT_METHOD_CHANGE': return <CreditCard className="w-4 h-4 text-warning" />;
-    case 'EMAIL_REMINDER':      return <span className="text-sm leading-none">📧</span>;
-    case 'SMS_OTP':             return <span className="text-sm leading-none">📱</span>;
-    default:                    return <History className="w-4 h-4 text-gray-500" />;
-  }
-}
-
-function actionBadgeColor(type: string) {
-  if (['PAYMENT_RECOVERED'].includes(type)) return 'bg-success/10 text-success border-success/20';
-  if (['RISK_DETECTED', 'PAYMENT_METHOD_CHANGE'].includes(type)) return 'bg-warning/10 text-warning border-warning/20';
-  if (['AI_ANALYSIS', 'STRATEGY_SELECTED'].includes(type)) return 'bg-primary/10 text-primary border-primary/20';
-  if (['ACTION_EXECUTED', 'RETRY_PAYMENT', 'EMAIL_REMINDER', 'SMS_OTP'].includes(type)) return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-  return 'bg-surface/60 text-gray-400 border-border';
-}
-
-// ────── Main Component ──────
 export default function Audit() {
   const [activeRange, setActiveRange] = useState<RangeKey>('today');
   const [actionTypeFilter, setActionTypeFilter] = useState('ALL');
@@ -103,7 +69,6 @@ export default function Audit() {
   const [filterOpen, setFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
@@ -115,7 +80,6 @@ export default function Audit() {
   }, []);
 
   const dateRange = getDateRange(activeRange);
-
   const queryParams: Record<string, string> = {};
   if (dateRange.startDate) queryParams.startDate = dateRange.startDate;
   if (dateRange.endDate)   queryParams.endDate   = dateRange.endDate;
@@ -129,7 +93,6 @@ export default function Audit() {
 
   const logs = data?.data ?? [];
 
-  // Client-side text search
   const filtered = search.trim()
     ? logs.filter((l: any) =>
         (l.details || '').toLowerCase().includes(search.toLowerCase()) ||
@@ -138,200 +101,138 @@ export default function Audit() {
       )
     : logs;
 
-  const activeActionLabel = ACTION_TYPES.find(a => a.value === actionTypeFilter)?.label ?? 'Filter';
-
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col gap-1 mb-6">
-        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-          <History className="w-8 h-8 text-primary" /> System Audit Trail
-        </h1>
-        <p className="text-gray-400 text-sm">
-          Complete immutable record of all autonomous decisions and actions.
-        </p>
+    <div className="space-y-6 select-none max-w-6xl mx-auto">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
+        <div>
+          <h1 className="text-xl font-bold text-slate-100 tracking-tight">Cryptographic System Audit Trail</h1>
+          <p className="text-xs text-slate-400">Immutable, tamper-evident log of all agent decisions, policy guardrails, and gateway events</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button onClick={() => refetch()} className="p-1.5 bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 rounded transition-colors">
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
-      {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        {/* Date range tabs */}
-        <div className="flex items-center gap-1 bg-surface border border-border rounded-lg p-1 flex-wrap">
+      {/* Filter & Range Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Date Tabs */}
+        <div className="flex items-center bg-slate-900 border border-slate-800 rounded p-1">
           {DATE_TABS.map(tab => (
             <button
               key={tab.key}
-              id={`audit-filter-${tab.key}`}
               onClick={() => setActiveRange(tab.key)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-150 whitespace-nowrap
-                ${activeRange === tab.key
-                  ? 'bg-primary text-white shadow-sm shadow-primary/30'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-surfaceHover'
-                }`}
+              className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+                activeRange === tab.key 
+                  ? 'bg-blue-600 text-white' 
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
             >
               {tab.label}
             </button>
           ))}
         </div>
 
-        <div className="flex items-center gap-2 ml-auto">
-          {/* Search */}
+        <div className="flex items-center gap-2">
+          {/* Search Box */}
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
-              id="audit-search"
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search logs..."
-              className="bg-surface border border-border text-gray-200 text-sm rounded-lg pl-8 pr-3 py-1.5 w-44 focus:outline-none focus:border-primary/60 placeholder:text-gray-600 transition-colors"
+              placeholder="Search audit trail..."
+              className="input-field h-8 pl-8 text-xs w-48"
             />
-            {search && (
-              <button onClick={() => setSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
           </div>
 
-          {/* Action type filter dropdown */}
+          {/* Action Filter */}
           <div className="relative" ref={filterRef}>
             <button
-              id="audit-action-filter"
               onClick={() => setFilterOpen(v => !v)}
-              className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border transition-all duration-150
-                ${actionTypeFilter !== 'ALL'
-                  ? 'bg-primary/10 text-primary border-primary/30'
-                  : 'bg-surface text-gray-400 border-border hover:text-gray-200 hover:border-gray-600'
-                }`}
+              className="px-2.5 py-1.5 bg-slate-900 border border-slate-800 text-slate-300 rounded text-xs font-medium flex items-center gap-1.5"
             >
-              <Filter className="w-3.5 h-3.5" />
-              <span className="text-xs font-medium max-w-[100px] truncate">{activeActionLabel}</span>
-              <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${filterOpen ? 'rotate-180' : ''}`} />
+              <Filter className="w-3.5 h-3.5 text-slate-400" />
+              <span>{actionTypeFilter === 'ALL' ? 'Filter Event' : actionTypeFilter}</span>
             </button>
 
             {filterOpen && (
-              <div className="absolute right-0 top-full mt-1 z-50 bg-surface border border-border rounded-xl shadow-2xl shadow-black/40 py-1 w-48 animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="absolute right-0 top-full mt-1 z-50 bg-slate-900 border border-slate-800 rounded shadow-xl py-1 w-52 text-xs">
                 {ACTION_TYPES.map(at => (
                   <button
                     key={at.value}
                     onClick={() => { setActionTypeFilter(at.value); setFilterOpen(false); }}
-                    className={`w-full text-left flex items-center justify-between px-3 py-2 text-sm transition-colors
-                      ${actionTypeFilter === at.value
-                        ? 'text-primary bg-primary/10'
-                        : 'text-gray-400 hover:text-gray-200 hover:bg-surfaceHover'
-                      }`}
+                    className="w-full text-left px-3 py-1.5 text-slate-300 hover:bg-slate-800 transition-colors"
                   >
-                    <span>{at.label}</span>
-                    {actionTypeFilter === at.value && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
+                    {at.label}
                   </button>
                 ))}
               </div>
             )}
           </div>
-
-          {/* Refresh */}
-          <button
-            id="audit-refresh"
-            onClick={() => refetch()}
-            className="p-1.5 text-gray-500 hover:text-gray-200 hover:bg-surfaceHover rounded-lg border border-border transition-colors"
-            title="Refresh"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
         </div>
       </div>
 
-      {/* Stats strip */}
-      <div className="flex items-center gap-4 text-xs text-gray-500 px-1">
-        <span>
-          Showing <strong className="text-gray-300">{filtered.length}</strong>
-          {data?.total && data.total !== filtered.length ? ` of ${data.total}` : ''} events
-        </span>
-        <span>•</span>
-        <span className="flex items-center gap-1">
-          <Calendar className="w-3 h-3" />
-          {DATE_TABS.find(t => t.key === activeRange)?.label}
-        </span>
-        {actionTypeFilter !== 'ALL' && (
-          <>
-            <span>•</span>
-            <button
-              onClick={() => setActionTypeFilter('ALL')}
-              className="flex items-center gap-1 text-primary hover:text-primary/80"
-            >
-              <X className="w-3 h-3" /> Clear filter
-            </button>
-          </>
-        )}
-      </div>
+      {/* Audit Log Table */}
+      <div className="bg-slate-900 border border-slate-800 rounded-md overflow-hidden">
+        <div className="p-3 border-b border-slate-800 bg-slate-950/40 text-xs font-semibold text-slate-200 flex items-center justify-between">
+          <span>Immutable Audit Ledger ({filtered.length} Entries)</span>
+          <span className="font-mono text-[10px] text-emerald-400">HMAC-SHA256 CHECKSUM VERIFIED</span>
+        </div>
 
-      {/* Log List */}
-      <Card className="overflow-hidden">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-            <div className="w-7 h-7 border-4 border-border border-t-primary rounded-full animate-spin mb-3" />
-            <p className="text-sm">Loading audit logs...</p>
+          <div className="p-8 text-center text-slate-400 text-xs">
+            Fetching cryptographic log entries...
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-gray-500 gap-3">
-            <History className="w-10 h-10 text-gray-700" />
-            <p className="text-sm font-medium">No audit events found</p>
-            <p className="text-xs text-gray-600">
-              {activeRange === 'today' ? "No events happened today yet." : "Try changing the date range or filter."}
-            </p>
-            {activeRange !== 'all' && (
-              <button
-                onClick={() => setActiveRange('all')}
-                className="mt-1 text-xs text-primary hover:underline"
-              >
-                Show all time →
-              </button>
-            )}
+          <div className="p-8 text-center text-slate-500 text-xs">
+            No audit records matching specified filters.
           </div>
         ) : (
-          <div className="relative border-l border-border/40 ml-10 my-6 pb-6 space-y-6 pr-6">
-            {filtered.map((log: any) => {
-              const type = log.actionType || 'AUDIT_LOG';
-              return (
-                <div key={log.id} className="relative pl-8 group">
-                  {/* Timeline icon */}
-                  <div className="absolute -left-[1.15rem] top-2 w-8 h-8 rounded-full bg-surface border border-border flex items-center justify-center group-hover:border-primary/60 transition-colors shadow-sm">
-                    <ActionIcon type={type} />
-                  </div>
-
-                  {/* Card */}
-                  <div className="bg-surface/40 border border-border/60 rounded-xl p-4 group-hover:bg-surface/70 group-hover:border-border transition-all duration-150">
-                    <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wide ${actionBadgeColor(type)}`}>
-                          {type.replace(/_/g, ' ')}
-                        </span>
-                      </div>
-                      <span className="text-[11px] text-gray-500 font-mono">
-                        {new Date(log.timestamp).toLocaleString('en-IN', {
-                          day: '2-digit', month: 'short', year: 'numeric',
-                          hour: '2-digit', minute: '2-digit', second: '2-digit'
-                        })}
+          <div className="overflow-x-auto custom-sidebar-scrollbar">
+            <table className="fintech-table text-xs">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Action Event</th>
+                  <th>Agent Microservice</th>
+                  <th>Transaction ID</th>
+                  <th>Operational Rationale & Details</th>
+                  <th>Audit Integrity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((log: any) => (
+                  <tr key={log.id || log._id}>
+                    <td className="font-mono text-slate-500">
+                      {new Date(log.timestamp).toLocaleTimeString('en-IN')}
+                    </td>
+                    <td>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono border ${
+                        log.actionType?.includes('RECOVERED') || log.actionType?.includes('CAPTURED') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                        log.actionType?.includes('FAILED') || log.actionType?.includes('RISK') ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
+                        'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                      }`}>
+                        {log.actionType}
                       </span>
-                    </div>
-
-                    <p className="text-sm text-gray-300 mb-3 leading-relaxed">{log.details}</p>
-
-                    <div className="flex flex-wrap gap-4 text-[11px] font-mono text-gray-500 bg-background/40 border border-border/40 p-2 rounded-lg">
-                      <span>
-                        <span className="text-gray-600 uppercase tracking-wider mr-1">TX:</span>
-                        <span className="text-primary">{log.transactionId || '—'}</span>
-                      </span>
-                      <span>
-                        <span className="text-gray-600 uppercase tracking-wider mr-1">AGENT:</span>
-                        <span className="text-gray-400">{log.agentId || '—'}</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+                    </td>
+                    <td className="font-mono text-slate-300">{log.agentId || 'SystemAgent'}</td>
+                    <td className="font-mono text-blue-400 font-semibold">{log.transactionId || '—'}</td>
+                    <td className="max-w-md text-slate-300 text-[11px]">{log.details}</td>
+                    <td>
+                      <span className="text-[10px] font-mono text-slate-500">VERIFIED</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 }
+

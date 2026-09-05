@@ -1,24 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #0b0f17;
-  --color-surface: #111827;
-  --color-surfaceHover: #1f2937;
-  --color-surface-hover: #1f2937;
+  --color-background: #090d16;
+  --color-surface: #111726;
+  --color-surface-hover: #1b2438;
+  --color-surfaceHover: #1b2438;
   --color-border: #1e293b;
+  --color-border-subtle: #192234;
   
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-accent: #0ea5e9;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-accent: #0284c7;
   
   --color-success: #10b981;
-  --color-success-bg: rgba(16, 185, 129, 0.12);
+  --color-success-bg: rgba(16, 185, 129, 0.1);
   
   --color-warning: #f59e0b;
-  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-warning-bg: rgba(245, 158, 11, 0.1);
   
   --color-danger: #ef4444;
-  --color-danger-bg: rgba(239, 68, 68, 0.12);
+  --color-danger-bg: rgba(239, 68, 68, 0.1);
   
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -26,8 +27,8 @@
 
 @layer base {
   :root {
-    --background: #0b0f17;
-    --foreground: #f8fafc;
+    --background: #090d16;
+    --foreground: #f1f5f9;
   }
 
   body {
@@ -36,40 +37,56 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 
 @utility human-card {
-  @apply bg-surface/90 backdrop-blur-xl border border-border rounded-2xl shadow-xl transition-all duration-200 hover:border-slate-700;
+  @apply bg-surface border border-border rounded-lg shadow-sm transition-colors duration-150 hover:border-slate-700;
 }
 
 @utility glass-card {
-  @apply bg-surface/80 backdrop-blur-md border border-border rounded-2xl shadow-lg transition-all duration-200;
+  @apply bg-surface border border-border rounded-lg shadow-sm;
 }
 
 @utility btn-primary {
-  @apply px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/20 transition-all duration-200 active:scale-[0.98];
+  @apply px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium text-sm transition-colors duration-150 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm inline-flex items-center justify-center gap-2;
 }
 
 @utility btn-secondary {
-  @apply px-5 py-2.5 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-slate-200 hover:text-white rounded-xl font-semibold transition-all duration-200 active:scale-[0.98];
+  @apply px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white rounded-md font-medium text-sm transition-colors duration-150 active:bg-slate-800 shadow-sm inline-flex items-center justify-center gap-2;
 }
 
 @utility input-field {
-  @apply w-full px-3.5 py-2.5 bg-slate-900/90 border border-slate-800 rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition-all;
+  @apply w-full px-3 py-2 bg-slate-900/90 border border-slate-700 rounded-md text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors;
 }
 
 /* Custom Scrollbars */
 .custom-sidebar-scrollbar::-webkit-scrollbar {
-  width: 5px;
+  width: 4px;
 }
 .custom-sidebar-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 .custom-sidebar-scrollbar::-webkit-scrollbar-thumb {
   background: #334155;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 .custom-sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* Professional Enterprise Table Styles */
+.fintech-table {
+  @apply w-full text-left text-sm text-slate-300 border-collapse;
+}
+.fintech-table th {
+  @apply px-4 py-3 bg-slate-900/80 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800;
+}
+.fintech-table td {
+  @apply px-4 py-3.5 border-b border-slate-800/60 align-middle;
+}
+.fintech-table tr:hover td {
+  @apply bg-slate-800/40;
+}
+

@@ -69,7 +69,36 @@ app.use(express.json({
 app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB
-connectDB();
+connectDB().then(async () => {
+  try {
+    const { Merchant } = await import('./models/Merchant');
+    const { User } = await import('./models/User');
+    const { seedDatabase } = await import('./services/seed');
+    const bcrypt = (await import('bcryptjs')).default;
+    
+    let merchant = await Merchant.findOne();
+    if (!merchant) {
+      merchant = new Merchant({ name: 'Acme Global Corp', workspaceId: 'ws_demo_corp' });
+      await merchant.save();
+      
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash('Password123!', salt);
+      const user = new User({
+        email: 'admin@company.com',
+        passwordHash,
+        firstName: 'Admin',
+        lastName: 'RecoverAI',
+        role: 'Admin',
+        merchantId: merchant._id
+      });
+      await user.save();
+      console.log('⚡ Auto-seeding initial 10,000 transactions for demo merchant...');
+      await seedDatabase(merchant._id as any, true);
+    }
+  } catch (err) {
+    console.error('Error in auto-seed bootstrap:', err);
+  }
+});
 
 // API Endpoints v1
 app.use('/api/v1/auth', authRouter);

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { fetchTransaction, executeDemoRecoveryAction } from '../api';
+import { fetchTransaction } from '../api';
 import {
   ArrowLeft,
   User,
@@ -9,282 +9,272 @@ import {
   Activity,
   AlertCircle,
   CheckCircle2,
-  Clock,
   Shield,
   Zap,
-  Send,
-  ExternalLink,
-  ChevronRight,
-  Sparkles,
   Layers,
-  Check
+  Check,
+  ArrowUpRight
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Button } from '../components/ui/button';
 
 export default function CaseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [executing, setExecuting] = useState(false);
 
-  const { data: tx, isLoading, refetch } = useQuery({
+  const { data: tx, isLoading } = useQuery({
     queryKey: ['transaction', id],
     queryFn: () => fetchTransaction(id || ''),
     enabled: !!id
   });
 
   if (isLoading) {
-    return <div className="p-8 text-center text-gray-400 animate-pulse">Loading case details...</div>;
+    return <div className="p-8 text-center text-slate-400 text-xs">Loading recovery case telemetry...</div>;
   }
 
   if (!tx) {
-    return <div className="p-8 text-center text-danger">Case not found.</div>;
+    return <div className="p-8 text-center text-rose-400 text-xs">Recovery Case not found in database.</div>;
   }
 
   const isRecovered = tx.recoveryStatus === 'RECOVERED' || tx.status === 'captured';
   const isInProgress = tx.recoveryStatus === 'IN_PROGRESS';
   const isPending = tx.recoveryStatus === 'PENDING';
   const amount = tx.amount || 5000;
+  const expectedAmount = Math.round(amount * ((tx.recoveryScore || 65) / 100));
 
-  // Build 10-Step Timeline Stages
   const timelineSteps = [
     {
       step: 1,
-      title: 'Payment Failed',
-      desc: `Bank decline error (${tx.errorCode || 'BAD_REQUEST_ERROR'})`,
+      title: 'Payment Failed Event Received',
+      desc: `Gateway decline error (${tx.errorCode || 'BAD_REQUEST_ERROR'})`,
       completed: true,
       active: false,
       date: new Date(tx.createdAt).toLocaleTimeString('en-IN')
     },
     {
       step: 2,
-      title: 'Recovery Case Created',
-      desc: `Case #${tx.id?.slice(0, 10)} opened with priority ${tx.severity || 'MEDIUM'}`,
+      title: 'Recovery Case Initialized',
+      desc: `Case #${tx.id?.slice(0, 12)} opened under risk category ${tx.severity || 'MEDIUM'}`,
       completed: true,
       active: false,
       date: new Date(tx.createdAt).toLocaleTimeString('en-IN')
     },
     {
       step: 3,
-      title: 'ML Probability Prediction',
-      desc: `Scored recovery probability: ${tx.recoveryScore || 65}%`,
+      title: 'ML Recovery Score Inference',
+      desc: `Scikit-Learn Random Forest predicted recovery probability: ${tx.recoveryScore || 65}%`,
       completed: true,
       active: false,
       date: 'Instant (<15ms)'
     },
     {
       step: 4,
-      title: 'AI Strategy Selected',
-      desc: `Strategy Agent recommended: ${tx.recoveryStatus === 'RECOVERED' ? 'RETRY / PAYMENT_LINK' : 'PAYMENT_LINK'}`,
+      title: 'Optimal Strategy Selected',
+      desc: `Strategy Agent chosen action: ${isRecovered ? 'PAYMENT_LINK' : 'SMART_RETRY'}`,
       completed: true,
       active: false,
-      date: 'Agent v5.0'
+      date: 'Strategy Engine'
     },
     {
       step: 5,
-      title: 'Policy Guardrail Evaluated',
-      desc: `Amount ₹${amount.toLocaleString('en-IN')} approved under merchant risk rules`,
+      title: 'Merchant Policy Guardrail Check',
+      desc: `Transaction amount ₹${amount.toLocaleString('en-IN')} verified against retry thresholds`,
       completed: true,
       active: false,
-      date: 'Policy Engine'
+      date: 'Policy Guardrail'
     },
     {
       step: 6,
       title: 'Recovery Action Dispatched',
-      desc: 'Payment link generated & dispatched via Payment Provider',
+      desc: 'Razorpay API payment link generated & customer notified',
       completed: isRecovered || isInProgress,
       active: isPending,
       date: isRecovered || isInProgress ? 'Dispatched' : 'Pending'
     },
     {
       step: 7,
-      title: 'Payment Portal Session',
-      desc: 'Customer checkout session opened',
+      title: 'Payment Link Session Opened',
+      desc: 'Customer accessed payment recovery gateway session',
       completed: isRecovered,
       active: isInProgress,
       date: isRecovered ? 'Completed' : 'Awaiting customer'
     },
     {
       step: 8,
-      title: 'Payment Captured',
-      desc: `Payment of ₹${amount.toLocaleString('en-IN')} verified by gateway`,
+      title: 'Payment Captured & Settled',
+      desc: `Payment of ₹${amount.toLocaleString('en-IN')} captured via Razorpay Gateway`,
       completed: isRecovered,
       active: false,
-      date: isRecovered ? 'Verified' : 'Pending'
+      date: isRecovered ? 'Captured' : 'Pending'
     },
     {
       step: 9,
-      title: 'Webhook Event Processed',
-      desc: 'payment.captured signature verified and idempotently logged',
+      title: 'Audit Compliance Logged',
+      desc: 'Cryptographic hash recorded in immutable audit log',
       completed: isRecovered,
       active: false,
       date: isRecovered ? 'Idempotent' : 'Pending'
-    },
-    {
-      step: 10,
-      title: 'Revenue Recovered & Case Closed',
-      desc: `₹${amount.toLocaleString('en-IN')} credited to Actual Recovered Revenue`,
-      completed: isRecovered,
-      active: false,
-      date: isRecovered ? 'CLOSED (RECOVERED)' : 'Incomplete'
     }
   ];
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-12">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface p-6 rounded-2xl border border-border">
-        <div className="flex items-center gap-4">
-          <Link to="/cases" className="p-2 hover:bg-surfaceHover rounded-lg text-gray-400 hover:text-white transition-colors">
-            <ArrowLeft className="w-5 h-5" />
+    <div className="space-y-6 max-w-5xl mx-auto pb-12 select-none">
+      {/* Case Navigation Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-slate-900 border border-slate-800 rounded-md">
+        <div className="flex items-center gap-3">
+          <Link to="/cases" className="p-1.5 hover:bg-slate-800 rounded text-slate-400 hover:text-slate-200 transition-colors">
+            <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold text-white">Case: {tx.transactionIdStr || tx.id.substring(0, 14)}</h1>
-              <Badge variant={
-                isRecovered ? 'success' :
-                isInProgress ? 'warning' :
-                tx.recoveryStatus === 'FAILED' ? 'danger' : 'secondary'
-              }>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-base font-bold text-slate-100 font-mono">Case #{tx.transactionIdStr || tx.id.substring(0, 14)}</h1>
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
+                isRecovered ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                isInProgress ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                'bg-amber-500/10 text-amber-400 border-amber-500/20'
+              }`}>
                 {tx.recoveryStatus}
-              </Badge>
+              </span>
             </div>
-            <p className="text-xs text-gray-400 mt-1">Failed on {new Date(tx.createdAt).toLocaleString('en-IN')}</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">Failed on {new Date(tx.createdAt).toLocaleString('en-IN')}</p>
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <Link to="/decision-center">
-            <Button variant="outline" className="gap-1.5 text-xs">
-              <Activity className="w-4 h-4" /> AI Analysis
-            </Button>
+            <button className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded text-xs font-medium transition-colors flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5" /> Strategy Analysis
+            </button>
           </Link>
           
           <button
             onClick={() => navigate(`/demo-payment/${tx.id}`)}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold text-xs transition-all shadow-md shadow-emerald-500/20 flex items-center gap-1.5"
+            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors shadow-sm flex items-center gap-1.5"
           >
-            <Zap className="w-3.5 h-3.5" /> Open Payment Portal
+            <Zap className="w-3.5 h-3.5" /> Open Checkout Portal
           </button>
         </div>
       </div>
 
-      {/* Main Grid: Customer & Transaction Info */}
+      {/* Main Grid: Customer Profile & Financial Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Customer Info */}
-        <Card className="md:col-span-1 bg-surface border-border">
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2 text-gray-300">
-              <User className="w-4 h-4 text-primary" /> Customer Profile
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-xs">
-            <div>
-              <div className="text-base font-bold text-white">{tx.customer?.name || 'Enterprise Customer'}</div>
-              <div className="text-gray-400 mt-0.5">{tx.customer?.email || 'customer@enterprise.io'}</div>
-              <div className="text-gray-500 mt-0.5">{tx.customer?.phone || '+919876543210'}</div>
+        {/* Customer Profile Box */}
+        <div className="md:col-span-1 bg-slate-900 border border-slate-800 rounded-md p-4 space-y-4 text-xs">
+          <div className="flex items-center gap-2 border-b border-slate-800 pb-2.5 text-slate-300 font-semibold">
+            <User className="w-4 h-4 text-blue-400" /> Customer Information
+          </div>
+          
+          <div>
+            <div className="text-sm font-bold text-slate-100">{tx.customer?.name || 'Acme Enterprise Corp'}</div>
+            <div className="text-slate-400 text-[11px] mt-0.5">{tx.customer?.email || 'finance@acme.io'}</div>
+            <div className="text-slate-500 text-[11px] mt-0.5 font-mono">{tx.customer?.phone || '+91 98765 43210'}</div>
+          </div>
+          
+          <div className="pt-3 border-t border-slate-800/80 space-y-2">
+            <div className="flex justify-between">
+              <span className="text-slate-400">Customer LTV:</span>
+              <span className="font-bold text-emerald-400 font-mono">₹{(tx.customer?.ltv || 50000).toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Historical Failures:</span>
+              <span className="text-slate-300 font-mono">{tx.retryCount || 1}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400">Account Tier:</span>
+              <span className="text-blue-400 font-semibold">Tier-1 Enterprise</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Transaction Financial Summary Box */}
+        <div className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-md p-4">
+          <div className="flex items-center gap-2 border-b border-slate-800 pb-2.5 mb-4 text-slate-300 font-semibold text-xs">
+            <CreditCard className="w-4 h-4 text-blue-400" /> Financial Recovery Comparison
+          </div>
+
+          <div className="grid grid-cols-2 gap-6 text-xs">
+            <div className="space-y-3">
+              <div>
+                <div className="text-slate-500 text-[11px] mb-0.5">Order Reference</div>
+                <div className="font-mono text-slate-200 font-semibold">{tx.orderId || 'order_demo_1032'}</div>
+              </div>
+              <div>
+                <div className="text-slate-500 text-[11px] mb-0.5">Original Transaction Amount</div>
+                <div className="text-xl font-bold text-slate-100 font-mono">₹{amount.toLocaleString('en-IN')}</div>
+              </div>
+              <div>
+                <div className="text-slate-500 text-[11px] mb-0.5">Payment Method & Bank</div>
+                <div className="capitalize text-slate-300 font-medium">{tx.paymentMethod || 'Credit Card'} • {tx.bank || 'HDFC Bank'}</div>
+              </div>
             </div>
             
-            <div className="pt-4 border-t border-border space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Customer LTV:</span>
-                <span className="font-bold text-emerald-400">₹{(tx.customer?.ltv || 50000).toLocaleString('en-IN')}</span>
+            <div className="space-y-3 border-l border-slate-800 pl-6">
+              <div>
+                <div className="text-slate-500 text-[11px] mb-1 flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-400" /> Failure Reason
+                </div>
+                <div className="font-mono text-rose-400 bg-rose-500/10 px-2.5 py-1.5 rounded border border-rose-500/20 text-xs">
+                  {tx.errorCode || 'BAD_REQUEST_ERROR'} — {tx.errorDescription || 'INSUFFICIENT_FUNDS'}
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Historical Failures:</span>
-                <span className="text-gray-300">{tx.retryCount || 1}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Transaction Details */}
-        <Card className="md:col-span-2 bg-surface border-border">
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2 text-gray-300">
-              <CreditCard className="w-4 h-4 text-primary" /> Transaction & Recovery Info
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-6 text-xs">
-              <div className="space-y-3">
+              {/* Expected vs Actual Recovery Comparison */}
+              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-800/80">
                 <div>
-                  <div className="text-gray-500 mb-0.5">Order Reference</div>
-                  <div className="font-mono text-gray-200">{tx.orderId || 'order_demo_1234'}</div>
+                  <div className="text-slate-500 text-[10px]">Expected Recovery (ML)</div>
+                  <div className="font-bold text-blue-400 font-mono text-sm">₹{expectedAmount.toLocaleString('en-IN')}</div>
+                  <div className="text-[10px] text-slate-500 font-mono">Score: {tx.recoveryScore || 65}%</div>
                 </div>
+
                 <div>
-                  <div className="text-gray-500 mb-0.5">Transaction Amount</div>
-                  <div className="text-xl font-bold text-white">₹{amount.toLocaleString('en-IN')}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500 mb-0.5">Payment Method</div>
-                  <div className="capitalize text-gray-200">{tx.paymentMethod || 'card'} • {tx.bank || 'HDFC'}</div>
-                </div>
-              </div>
-              
-              <div className="space-y-3 border-l border-border pl-6">
-                <div>
-                  <div className="text-gray-500 mb-0.5 flex items-center gap-1">
-                    <AlertCircle className="w-3.5 h-3.5 text-danger" /> Failure Reason
+                  <div className="text-slate-500 text-[10px]">Actual Recovered Revenue</div>
+                  <div className={`font-bold font-mono text-sm ${isRecovered ? 'text-emerald-400' : 'text-slate-500'}`}>
+                    {isRecovered ? `₹${amount.toLocaleString('en-IN')}` : '₹0 (Pending)'}
                   </div>
-                  <div className="font-medium text-danger bg-danger/10 p-2 rounded border border-danger/20">
-                    {tx.errorCode || 'BAD_REQUEST_ERROR'} — {tx.errorDescription || 'BANK_DECLINE'}
+                  <div className="text-[10px] text-slate-500 font-mono">
+                    {isRecovered ? 'Settled via Razorpay' : 'Awaiting settlement'}
                   </div>
-                </div>
-                <div>
-                  <div className="text-gray-500 mb-0.5">ML Recovery Probability</div>
-                  <div className="font-bold text-emerald-400">{tx.recoveryScore || 65}%</div>
-                </div>
-                <div>
-                  <div className="text-gray-500 mb-0.5">Expected Recovery</div>
-                  <div className="font-semibold text-cyan-400">₹{Math.round(amount * ((tx.recoveryScore || 65) / 100)).toLocaleString('en-IN')}</div>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* 10-Step Database-Driven Recovery Timeline */}
-      <Card className="bg-surface border-border">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-sm flex items-center gap-2 text-gray-200">
-              <Layers className="w-4 h-4 text-primary" /> End-to-End Recovery Event Timeline
-            </CardTitle>
-            <span className="text-xs text-gray-500 font-mono">10 Lifecycle Stages</span>
+      {/* 9-Step Lifecycle Timeline */}
+      <div className="bg-slate-900 border border-slate-800 rounded-md p-4">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+            <Layers className="w-4 h-4 text-blue-400" /> End-to-End Recovery Event Timeline
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="relative border-l-2 border-border/80 ml-4 pl-6 space-y-6 my-2">
-            {timelineSteps.map((s, idx) => (
-              <div key={idx} className="relative group">
-                {/* Node icon */}
-                <div className={`absolute -left-[33px] top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                  s.completed
-                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 ring-4 ring-surface'
-                    : s.active
-                    ? 'bg-primary text-white animate-pulse ring-4 ring-surface'
-                    : 'bg-surfaceHover text-gray-500 border border-border ring-4 ring-surface'
-                }`}>
-                  {s.completed ? <Check className="w-3.5 h-3.5" /> : s.step}
-                </div>
+          <span className="text-[11px] text-slate-500 font-mono">9 Audit Lifecycle Stages</span>
+        </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                  <div>
-                    <h4 className={`text-xs font-semibold ${s.completed ? 'text-white' : s.active ? 'text-primary' : 'text-gray-400'}`}>
-                      {s.step}. {s.title}
-                    </h4>
-                    <p className="text-[11px] text-gray-400 mt-0.5">{s.desc}</p>
-                  </div>
-                  <span className="text-[10px] font-mono text-gray-500">{s.date}</span>
-                </div>
+        <div className="relative border-l border-slate-800 ml-3 pl-5 space-y-4 my-2">
+          {timelineSteps.map((s, idx) => (
+            <div key={idx} className="relative">
+              <div className={`absolute -left-[27px] top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                s.completed
+                  ? 'bg-emerald-500 text-slate-950 ring-2 ring-slate-900'
+                  : s.active
+                  ? 'bg-blue-500 text-white animate-pulse ring-2 ring-slate-900'
+                  : 'bg-slate-800 text-slate-500 border border-slate-700 ring-2 ring-slate-900'
+              }`}>
+                {s.completed ? <Check className="w-3 h-3 stroke-[3]" /> : s.step}
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                <div>
+                  <h4 className={`text-xs font-medium ${s.completed ? 'text-slate-200' : s.active ? 'text-blue-400 font-semibold' : 'text-slate-500'}`}>
+                    {s.step}. {s.title}
+                  </h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">{s.desc}</p>
+                </div>
+                <span className="text-[10px] font-mono text-slate-500">{s.date}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
+

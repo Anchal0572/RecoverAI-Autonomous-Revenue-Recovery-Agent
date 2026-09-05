@@ -9,14 +9,11 @@ import {
   XCircle,
   RotateCcw,
   Sparkles,
-  ShieldCheck,
   Zap,
-  ArrowRight,
   ExternalLink,
   Loader2,
-  TrendingUp,
-  AlertTriangle,
-  Info
+  Info,
+  Check
 } from 'lucide-react';
 import {
   fetchPaymentConfig,
@@ -53,7 +50,7 @@ export default function DemoControlCenter() {
 
   useEffect(() => {
     loadConfig();
-    addLog('RecoverAI Demo Control Center initialized. Ready to execute recovery workflow.', 'info');
+    addLog('RevPulse Demo Control Center initialized. Ready to execute recovery workflow.', 'info');
   }, []);
 
   const loadConfig = async () => {
@@ -69,7 +66,7 @@ export default function DemoControlCenter() {
   };
 
   const addLog = (text: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
-    const time = new Date().toLocaleTimeString();
+    const time = new Date().toLocaleTimeString('en-IN');
     setLogMessages(prev => [{ time, text, type }, ...prev.slice(0, 49)]);
   };
 
@@ -220,129 +217,144 @@ export default function DemoControlCenter() {
 
   const isDemo = config.paymentMode === 'demo';
 
+  const stepperItems = [
+    { step: 1, label: 'Failure Event' },
+    { step: 2, label: 'AI Strategy' },
+    { step: 3, label: 'Policy Guardrail' },
+    { step: 4, label: 'Action Dispatch' },
+    { step: 5, label: 'Customer Session' },
+    { step: 6, label: 'Revenue Settled' }
+  ];
+
   return (
-    <div className="space-y-6 pb-12">
-      {/* Header & Mode Badge */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface p-6 rounded-2xl border border-border">
+    <div className="space-y-6 pb-12 select-none">
+      {/* Top Header & Environment Toggle Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-slate-900 border border-slate-800 rounded-md">
         <div>
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
-              <Zap className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">RecoverAI Demo Control Center</h1>
-              <p className="text-xs text-gray-400">
-                Interactive environment switch, local payment simulator, and one-click autonomous recovery testing
-              </p>
-            </div>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-base font-bold text-slate-100">Recovery Demo Operations Control</h1>
+            <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono border ${
+              isDemo 
+                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+            }`}>
+              {isDemo ? 'LOCAL DEMO ENGINE' : 'RAZORPAY TEST GATEWAY'}
+            </span>
           </div>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Execute end-to-end payment failures, ML agent strategy dispatch, and webhook settlements
+          </p>
         </div>
 
-        {/* Environment Switch Status */}
-        <div className="flex items-center gap-3">
-          <div className={`px-4 py-2 rounded-xl border flex items-center gap-2 text-xs font-semibold ${
-            isDemo 
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
-              : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-          }`}>
-            <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
-            <span>{isDemo ? '🟢 LOCAL DEMO MODE' : '🟡 RAZORPAY TEST MODE'}</span>
-          </div>
+        <button
+          id="demo-reset-button"
+          onClick={handleReset}
+          disabled={busyAction !== null}
+          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded text-xs font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50"
+        >
+          <RotateCcw className={`w-3.5 h-3.5 ${busyAction === 'reset' ? 'animate-spin' : ''}`} /> Reset Demo Data
+        </button>
+      </div>
 
-          <button
-            id="demo-reset-button"
-            onClick={handleReset}
-            disabled={busyAction !== null}
-            className="px-3.5 py-2 rounded-xl bg-surfaceHover hover:bg-surface border border-border text-xs font-medium text-gray-300 hover:text-white transition-colors flex items-center gap-1.5 disabled:opacity-50"
-          >
-            <RotateCcw className={`w-3.5 h-3.5 ${busyAction === 'reset' ? 'animate-spin' : ''}`} /> Reset Demo
-          </button>
+      {/* 6-Step Workflow Stepper Header */}
+      <div className="bg-slate-900 border border-slate-800 rounded-md p-4">
+        <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-3">
+          6-Step Recovery Operations Pipeline
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+          {stepperItems.map((item) => {
+            const isCompleted = currentStep >= item.step;
+            const isCurrent = currentStep === item.step - 1;
+            return (
+              <div 
+                key={item.step} 
+                className={`p-2.5 rounded border text-xs flex flex-col items-center justify-center text-center transition-all ${
+                  isCompleted 
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                    : isCurrent
+                    ? 'bg-blue-600/20 border-blue-500/40 text-blue-300'
+                    : 'bg-slate-950/40 border-slate-800/80 text-slate-500'
+                }`}
+              >
+                <div className="flex items-center gap-1 font-mono font-bold text-[11px]">
+                  {isCompleted ? <Check className="w-3 h-3 stroke-[3]" /> : <span>0{item.step}</span>}
+                </div>
+                <div className="text-[11px] font-medium mt-1">{item.label}</div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Warning if Razorpay requested but not configured */}
-      {config.warning && (
-        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-          <span>{config.warning}</span>
-        </div>
-      )}
-
-      {/* One-Click Full Demo Hero Banner */}
-      <div className="bg-gradient-to-r from-primary/20 via-purple-500/10 to-transparent p-6 rounded-2xl border border-primary/30 relative overflow-hidden">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-xs font-bold text-primary uppercase tracking-wider">Automated Hackathon Demo</span>
-            </div>
-            <h2 className="text-lg font-bold text-white">One-Click Full Revenue Recovery</h2>
-            <p className="text-xs text-gray-300 max-w-xl">
-              Executes the complete 14-step workflow: Creates ₹5,000 failure $\rightarrow$ ML Prediction $\rightarrow$ 7-Agent Policy Check $\rightarrow$ Payment Link $\rightarrow$ Webhook Capture $\rightarrow$ Revenue Credited.
-            </p>
+      {/* One-Click Full Demo Bar */}
+      <div className="p-4 bg-slate-900 border border-blue-500/30 rounded-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-blue-400" />
+            <h2 className="text-sm font-bold text-slate-100">One-Click Full Revenue Recovery</h2>
           </div>
-
-          <button
-            id="run-full-recovery-demo-btn"
-            onClick={handleRunFullDemo}
-            disabled={busyAction !== null}
-            className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-400 text-white font-bold text-sm shadow-xl shadow-primary/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {busyAction === 'full' ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" /> Executing 14 Steps...
-              </>
-            ) : (
-              <>
-                <PlayCircle className="w-4 h-4" /> RUN FULL RECOVERY DEMO
-              </>
-            )}
-          </button>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Executes complete 14-step workflow: Failure Injection $\rightarrow$ ML Inference $\rightarrow$ Policy Check $\rightarrow$ Settlement
+          </p>
         </div>
+
+        <button
+          id="run-full-recovery-demo-btn"
+          onClick={handleRunFullDemo}
+          disabled={busyAction !== null}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
+        >
+          {busyAction === 'full' ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Executing 14 Steps...
+            </>
+          ) : (
+            <>
+              <PlayCircle className="w-3.5 h-3.5" /> Execute One-Click Demo
+            </>
+          )}
+        </button>
       </div>
 
-      {/* Interactive Step-by-Step Workbench */}
+      {/* Workbench Grid: Left Control Panel / Right Live Telemetry */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Step Controls */}
+        {/* Left 2 Columns: Interactive Step Workbench */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Step 1: Create Failed Payment */}
-          <div className={`p-5 rounded-2xl border transition-all ${
-            currentStep >= 1 ? 'bg-surface border-border' : 'bg-surface border-primary/40 shadow-lg shadow-primary/5'
-          }`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <span className="w-6 h-6 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center text-xs font-bold">1</span>
-                <h3 className="text-sm font-semibold text-white">Create Real Failed Payment</h3>
+          {/* Step 1 Box */}
+          <div className="p-4 bg-slate-900 border border-slate-800 rounded-md space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                <span className="w-5 h-5 rounded bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-[10px] font-bold">1</span>
+                <span>Inject Payment Failure Event</span>
               </div>
               {createdTx && (
-                <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                   {createdTx.transactionIdStr}
                 </span>
               )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
               <div>
-                <label className="text-gray-400 block mb-1">Amount (₹)</label>
+                <label className="text-slate-400 block mb-1">Transaction Value (₹)</label>
                 <input
                   type="number"
                   value={amount}
                   onChange={e => setAmount(Number(e.target.value))}
-                  className="w-full bg-surfaceHover border border-border rounded-lg px-3 py-2 text-xs text-white"
+                  className="input-field h-8"
                 />
               </div>
               <div>
-                <label className="text-gray-400 block mb-1">Failure Reason</label>
+                <label className="text-slate-400 block mb-1">Failure Error Reason</label>
                 <select
                   value={failureReason}
                   onChange={e => setFailureReason(e.target.value)}
-                  className="w-full bg-surfaceHover border border-border rounded-lg px-3 py-2 text-xs text-white"
+                  className="input-field h-8 text-xs bg-slate-950"
                 >
                   <option value="BANK_DECLINE">BANK_DECLINE (Card Issuer)</option>
                   <option value="INSUFFICIENT_FUNDS">INSUFFICIENT_FUNDS</option>
                   <option value="CARD_EXPIRED">CARD_EXPIRED</option>
                   <option value="GATEWAY_TIMEOUT">GATEWAY_TIMEOUT</option>
-                  <option value="AUTHENTICATION_FAILED">AUTHENTICATION_FAILED</option>
                 </select>
               </div>
               <div className="flex items-end">
@@ -350,91 +362,78 @@ export default function DemoControlCenter() {
                   id="create-failed-payment-btn"
                   onClick={handleCreateFailedPayment}
                   disabled={busyAction !== null}
-                  className="w-full py-2 px-3 rounded-lg bg-primary hover:bg-primary/90 text-white font-medium text-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  className="w-full py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors shadow-sm flex items-center justify-center gap-1 disabled:opacity-50"
                 >
                   {busyAction === 'create' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <PlusCircle className="w-3.5 h-3.5" />}
-                  Create Failed Payment
+                  Inject Failure
                 </button>
               </div>
             </div>
-
-            {createdCase && (
-              <div className="p-3 bg-surfaceHover/40 rounded-xl border border-border/50 text-xs flex justify-between items-center">
-                <span className="text-gray-400">Auto-Created Recovery Case: <strong className="text-gray-200">{createdCase.id}</strong></span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                  Status: {createdCase.status}
-                </span>
-              </div>
-            )}
           </div>
 
-          {/* Step 2: Run Recovery AI */}
-          <div className={`p-5 rounded-2xl border transition-all ${
-            currentStep >= 2 ? 'bg-surface border-border' : currentStep === 1 ? 'bg-surface border-primary/40' : 'bg-surface/50 border-border/50 opacity-80'
-          }`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <span className="w-6 h-6 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center text-xs font-bold">2</span>
-                <h3 className="text-sm font-semibold text-white">ML Prediction & 7-Agent Decision</h3>
+          {/* Step 2 Box */}
+          <div className="p-4 bg-slate-900 border border-slate-800 rounded-md space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                <span className="w-5 h-5 rounded bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-[10px] font-bold">2</span>
+                <span>ML Inference & Strategy Selection</span>
               </div>
               <button
                 id="run-recovery-ai-btn"
                 onClick={handleRunAI}
                 disabled={!createdTx || busyAction !== null}
-                className="py-1.5 px-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-medium text-xs transition-colors flex items-center gap-1.5 disabled:opacity-40"
+                className="py-1 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded text-xs font-medium transition-colors flex items-center gap-1 disabled:opacity-40"
               >
-                {busyAction === 'ai' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Cpu className="w-3.5 h-3.5" />}
-                Run Recovery AI
+                {busyAction === 'ai' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Cpu className="w-3 h-3" />}
+                Run ML Pipeline
               </button>
             </div>
 
             {aiResult && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-surfaceHover/40 p-3 rounded-xl border border-border/50 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-950/60 p-2.5 rounded border border-slate-800 text-xs">
                 <div>
-                  <span className="text-gray-500 text-[10px] block">Selected Strategy</span>
-                  <span className="font-bold text-primary">{aiResult.strategy}</span>
+                  <span className="text-slate-500 text-[10px] block">Strategy</span>
+                  <span className="font-mono font-bold text-blue-400">{aiResult.strategy}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500 text-[10px] block">Recovery Prob</span>
-                  <span className="font-bold text-emerald-400">{Math.round(aiResult.recoveryProbability * 100)}%</span>
+                  <span className="text-slate-500 text-[10px] block">Recovery Score</span>
+                  <span className="font-mono font-bold text-emerald-400">{Math.round(aiResult.recoveryProbability * 100)}%</span>
                 </div>
                 <div>
-                  <span className="text-gray-500 text-[10px] block">Expected Recovery</span>
-                  <span className="font-bold text-cyan-400">₹{aiResult.expectedRecovery?.toLocaleString('en-IN')}</span>
+                  <span className="text-slate-500 text-[10px] block">Expected Revenue</span>
+                  <span className="font-mono font-bold text-slate-100">₹{aiResult.expectedRecovery?.toLocaleString('en-IN')}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500 text-[10px] block">Policy Guardrail</span>
-                  <span className="font-bold text-emerald-400">{aiResult.policyApproved ? 'APPROVED' : 'BLOCKED'}</span>
+                  <span className="text-slate-500 text-[10px] block">Policy Guardrail</span>
+                  <span className="font-mono font-bold text-emerald-400">{aiResult.policyApproved ? 'PASSED' : 'BLOCKED'}</span>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Step 3: Execute Recovery Action */}
-          <div className={`p-5 rounded-2xl border transition-all ${
-            currentStep >= 3 ? 'bg-surface border-border' : currentStep === 2 ? 'bg-surface border-primary/40' : 'bg-surface/50 border-border/50 opacity-80'
-          }`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <span className="w-6 h-6 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center text-xs font-bold">3</span>
-                <h3 className="text-sm font-semibold text-white">Execute Recovery Action</h3>
+          {/* Step 3 Box */}
+          <div className="p-4 bg-slate-900 border border-slate-800 rounded-md space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                <span className="w-5 h-5 rounded bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-[10px] font-bold">3</span>
+                <span>Dispatch Action & Checkout Link</span>
               </div>
               <button
                 id="execute-recovery-btn"
                 onClick={handleExecuteRecovery}
                 disabled={!createdCase || busyAction !== null}
-                className="py-1.5 px-3 rounded-lg bg-primary hover:bg-primary/90 text-white font-medium text-xs transition-colors flex items-center gap-1.5 disabled:opacity-40"
+                className="py-1 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded text-xs font-medium transition-colors flex items-center gap-1 disabled:opacity-40"
               >
-                {busyAction === 'execute' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                Execute Recovery
+                {busyAction === 'execute' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                Dispatch Link
               </button>
             </div>
 
             {executionResult && (
-              <div className="p-3 bg-surfaceHover/40 rounded-xl border border-border/50 flex items-center justify-between text-xs">
+              <div className="p-2.5 bg-slate-950/60 rounded border border-slate-800 flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-gray-400 block">Payment Session Active:</span>
-                  <span className="font-mono text-cyan-400 text-[11px]">{executionResult.paymentUrl}</span>
+                  <span className="text-slate-500 text-[10px] block">Session URL:</span>
+                  <span className="font-mono text-blue-400 text-[11px]">{executionResult.paymentUrl}</span>
                 </div>
                 <button
                   onClick={() => {
@@ -444,108 +443,103 @@ export default function DemoControlCenter() {
                       navigate(executionResult.paymentUrl);
                     }
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 border border-primary/30 text-xs font-semibold flex items-center gap-1 transition-colors"
+                  className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1 transition-colors"
                 >
-                  Open Checkout Portal <ExternalLink className="w-3 h-3" />
+                  Open Checkout <ExternalLink className="w-3 h-3" />
                 </button>
               </div>
             )}
           </div>
 
-          {/* Step 4: Simulate Payment & Webhook Capture */}
-          <div className={`p-5 rounded-2xl border transition-all ${
-            currentStep >= 4 ? 'bg-emerald-500/10 border-emerald-500/30' : currentStep === 3 ? 'bg-surface border-primary/40' : 'bg-surface/50 border-border/50 opacity-80'
-          }`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <span className="w-6 h-6 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center text-xs font-bold">4</span>
-                <h3 className="text-sm font-semibold text-white">Simulate Payment Capture / Webhook</h3>
+          {/* Step 4 Box */}
+          <div className="p-4 bg-slate-900 border border-slate-800 rounded-md space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+                <span className="w-5 h-5 rounded bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-[10px] font-bold">4</span>
+                <span>Simulate Webhook Settlement Event</span>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   id="simulate-success-btn"
                   onClick={handleSimulateSuccess}
                   disabled={!createdCase || busyAction !== null}
-                  className="py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition-colors flex items-center gap-1.5 disabled:opacity-40"
+                  className="py-1 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-medium transition-colors shadow-sm flex items-center gap-1 disabled:opacity-40"
                 >
-                  {busyAction === 'success' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-                  Simulate Success
+                  {busyAction === 'success' ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                  Simulate Capture
                 </button>
                 <button
                   id="simulate-failure-btn"
                   onClick={handleSimulateFailure}
                   disabled={!createdCase || busyAction !== null}
-                  className="py-1.5 px-3 rounded-lg bg-surfaceHover hover:bg-danger/10 text-gray-300 hover:text-danger border border-border text-xs font-medium transition-colors flex items-center gap-1.5 disabled:opacity-40"
+                  className="py-1 px-2.5 bg-slate-800 hover:bg-slate-700 text-rose-400 border border-slate-700 rounded text-xs font-medium transition-colors flex items-center gap-1 disabled:opacity-40"
                 >
-                  {busyAction === 'fail' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+                  {busyAction === 'fail' ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3 h-3" />}
                   Simulate Failure
                 </button>
               </div>
             </div>
 
             {paymentResult && (
-              <div className="p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-xs space-y-1">
-                <div className="flex justify-between font-semibold text-emerald-400">
+              <div className="p-3 bg-emerald-500/10 rounded border border-emerald-500/20 text-xs space-y-1">
+                <div className="flex justify-between font-mono font-semibold text-emerald-400">
                   <span>Payment Captured: ₹{paymentResult.actualRecovered?.toLocaleString('en-IN')}</span>
                   <span>Case Status: CLOSED</span>
                 </div>
-                <p className="text-gray-400 text-[11px]">
-                  Webhook event <code className="text-cyan-400 font-mono">payment.captured</code> verified and idempotently logged in database.
+                <p className="text-slate-400 text-[11px]">
+                  Webhook event <code className="text-blue-400 font-mono">payment.captured</code> verified and idempotently logged in database.
                 </p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Right Col: Live Execution Log & Navigation Links */}
-        <div className="space-y-4">
-          <div className="bg-surface p-5 rounded-2xl border border-border flex flex-col h-[480px]">
-            <div className="flex items-center justify-between pb-3 border-b border-border mb-3">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                <Info className="w-3.5 h-3.5 text-primary" /> Live Demo Log Stream
-              </h3>
-              <span className="text-[10px] text-gray-500 font-mono">{logMessages.length} events</span>
+        {/* Right Column: System Execution Log Drawer */}
+        <div className="bg-slate-900 border border-slate-800 rounded-md p-4 flex flex-col h-[480px]">
+          <div className="flex items-center justify-between pb-2.5 border-b border-slate-800 mb-3 text-xs font-semibold text-slate-200">
+            <div className="flex items-center gap-1.5">
+              <Info className="w-3.5 h-3.5 text-blue-400" /> Operational System Telemetry Log
             </div>
+            <span className="text-[10px] text-slate-500 font-mono">{logMessages.length} Events</span>
+          </div>
 
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1 text-xs">
-              {logMessages.map((log, idx) => (
-                <div
-                  key={idx}
-                  className={`p-2.5 rounded-lg border text-[11px] leading-relaxed ${
-                    log.type === 'success'
-                      ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
-                      : log.type === 'error'
-                      ? 'bg-danger/10 border-danger/20 text-danger'
-                      : log.type === 'warning'
-                      ? 'bg-amber-500/10 border-amber-500/20 text-amber-300'
-                      : 'bg-surfaceHover/50 border-border/50 text-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between text-[10px] opacity-70 mb-0.5">
-                    <span className="font-mono">{log.time}</span>
-                  </div>
-                  <div>{log.text}</div>
-                </div>
-              ))}
-            </div>
+          <div className="flex-1 overflow-y-auto space-y-2 pr-1 text-xs custom-sidebar-scrollbar">
+            {logMessages.map((log, idx) => (
+              <div
+                key={idx}
+                className={`p-2 rounded border text-[11px] leading-relaxed font-mono ${
+                  log.type === 'success'
+                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
+                    : log.type === 'error'
+                    ? 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+                    : log.type === 'warning'
+                    ? 'bg-amber-500/10 border-amber-500/20 text-amber-300'
+                    : 'bg-slate-950/60 border-slate-800/80 text-slate-400'
+                }`}
+              >
+                <div className="text-[9px] opacity-60 mb-0.5">{log.time}</div>
+                <div>{log.text}</div>
+              </div>
+            ))}
+          </div>
 
-            <div className="pt-3 border-t border-border mt-3 grid grid-cols-2 gap-2">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="w-full py-2 rounded-lg bg-surfaceHover hover:bg-surface border border-border text-xs font-medium text-gray-300 hover:text-white transition-colors text-center"
-              >
-                Go to Dashboard →
-              </button>
-              <button
-                onClick={() => navigate('/audit')}
-                className="w-full py-2 rounded-lg bg-surfaceHover hover:bg-surface border border-border text-xs font-medium text-gray-300 hover:text-white transition-colors text-center"
-              >
-                Go to Audit Trail →
-              </button>
-            </div>
+          <div className="pt-3 border-t border-slate-800 mt-3 grid grid-cols-2 gap-2">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors text-center"
+            >
+              Command Center →
+            </button>
+            <button
+              onClick={() => navigate('/audit')}
+              className="py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors text-center"
+            >
+              Audit Trail →
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
 }
+

@@ -114,7 +114,9 @@ export async function getDashboardSummary(req: AuthRequest, res: Response) {
         inProgress: stats.inProgressAmount,
         recovery_rate: recoveryRate,
         revenue_at_risk: revenueAtRisk,
-        expected_recovery: Math.round(expectedRecovery)
+        atRisk: revenueAtRisk,
+        expected_recovery: Math.round(expectedRecovery),
+        expectedRecovery: Math.round(expectedRecovery)
       },
       avgRecoveryScore: Math.round(stats.avgRecoveryScore || 0),
       riskDistribution,

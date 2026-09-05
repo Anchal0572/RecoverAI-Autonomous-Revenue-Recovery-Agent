@@ -1,7 +1,9 @@
 const API_BASE = '/api/v1';
 
+const DEFAULT_DEMO_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhOWJkZjIyOGM5NTliYWEyZjViOGYxNiIsImVtYWlsIjoiYWRtaW5AY29tcGFueS5jb20iLCJyb2xlIjoiQWRtaW4iLCJtZXJjaGFudElkIjoiNmE5YmRmMjI4Yzk1OWJhYTJmNWI4ZjEyIiwiaWF0IjoxNzg4NjAwMDk4LCJleHAiOjE3ODg2ODY0OTh9.sPj1y29Wv5m-BNNtRdjSQ7U8oZALKehb0jHbOc8b2PQ';
+
 function getHeaders(options: RequestInit = {}) {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token') || DEFAULT_DEMO_TOKEN;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> || {})

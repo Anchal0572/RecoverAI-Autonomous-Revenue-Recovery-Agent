@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  BookOpen, Search, FileText, Shield, Zap, HelpCircle,
-  AlertTriangle, Tag
-} from 'lucide-react';
+import { BookOpen, Search, FileText, Tag, ChevronRight } from 'lucide-react';
 import { queryKnowledgeBase, fetchKnowledgeDocuments } from '../api';
 
 interface KnowledgeDoc {
@@ -21,13 +18,6 @@ interface Category {
   description: string;
 }
 
-const categoryConfig: Record<string, { icon: any; color: string }> = {
-  policies: { icon: Shield, color: '#3b82f6' },
-  playbooks: { icon: Zap, color: '#10b981' },
-  escalation: { icon: AlertTriangle, color: '#f59e0b' },
-  faqs: { icon: HelpCircle, color: '#8b5cf6' }
-};
-
 export default function KnowledgeBase() {
   const [documents, setDocuments] = useState<KnowledgeDoc[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -44,6 +34,9 @@ export default function KnowledgeBase() {
       const res = await fetchKnowledgeDocuments(category || undefined);
       setDocuments(res.documents || []);
       setCategories(res.categories || []);
+      if (res.documents && res.documents.length > 0 && !selectedDoc) {
+        setSelectedDoc(res.documents[0]);
+      }
     } catch (err) {
       console.error('Failed to load documents', err);
     }
@@ -59,6 +52,9 @@ export default function KnowledgeBase() {
     try {
       const res = await queryKnowledgeBase(query, selectedCategory || undefined);
       setSearchResults(res.results || []);
+      if (res.results && res.results.length > 0) {
+        setSelectedDoc(res.results[0]);
+      }
     } catch (err) {
       console.error('Search failed', err);
     }
@@ -77,179 +73,127 @@ export default function KnowledgeBase() {
   const displayDocs = searchResults || documents;
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">
-          📚 Knowledge Base
-        </h1>
-        <p className="text-sm text-gray-400 mt-1">
-          RAG-powered knowledge system — merchant policies, recovery playbooks, escalation rules & FAQs
-        </p>
+    <div className="space-y-6 select-none max-w-6xl mx-auto">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
+        <div>
+          <h1 className="text-xl font-bold text-slate-100 tracking-tight">RAG Resolution Knowledge Playbook</h1>
+          <p className="text-xs text-slate-400">Contextual recovery policies, escalation procedures, and automated strategy playbooks</p>
+        </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="glass-card p-4">
-        <div className="flex gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+      {/* Search Bar & Category Pills */}
+      <div className="p-4 bg-slate-900 border border-slate-800 rounded-md space-y-3">
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               value={query}
               onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              placeholder="Search knowledge base... (e.g., 'retry policy', 'payment link playbook', 'escalation workflow')"
-              className="input-field pl-10"
+              placeholder="Search playbook & policies (e.g. 'retry policy', 'payment link timeout', 'escalation')..."
+              className="input-field pl-9 h-9 text-xs"
             />
           </div>
           <button
             onClick={handleSearch}
             disabled={searching}
-            className="btn-primary flex items-center gap-2 text-sm"
+            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors shadow-sm"
           >
-            <Search className={`w-4 h-4 ${searching ? 'animate-spin' : ''}`} />
-            Search
+            Search RAG
           </button>
         </div>
-      </div>
 
-      {/* Category Filter */}
-      <div className="flex gap-2 flex-wrap">
-        <button
-          onClick={() => handleCategorySelect(null)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
-            !selectedCategory
-              ? 'bg-primary text-white border-primary'
-              : 'text-gray-400 border-border hover:border-gray-500'
-          }`}
-        >
-          All ({categories.reduce((sum, c) => sum + c.count, 0)})
-        </button>
-        {categories.map(cat => {
-          const config = categoryConfig[cat.category] || { icon: FileText, color: '#6b7280' };
-          const Icon = config.icon;
-          return (
+        {/* Category Pills */}
+        <div className="flex items-center gap-2 pt-1 border-t border-slate-800/60 overflow-x-auto custom-sidebar-scrollbar text-xs">
+          <button
+            onClick={() => handleCategorySelect(null)}
+            className={`px-2.5 py-1 rounded font-medium transition-colors ${
+              !selectedCategory 
+                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' 
+                : 'bg-slate-950/60 text-slate-400 border border-slate-800 hover:text-slate-200'
+            }`}
+          >
+            All Playbooks ({categories.reduce((sum, c) => sum + c.count, 0)})
+          </button>
+          {categories.map(cat => (
             <button
               key={cat.category}
               onClick={() => handleCategorySelect(cat.category)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border flex items-center gap-1.5 ${
-                selectedCategory === cat.category
-                  ? 'text-white border-transparent'
-                  : 'text-gray-400 border-border hover:border-gray-500'
+              className={`px-2.5 py-1 rounded font-medium transition-colors capitalize ${
+                selectedCategory === cat.category 
+                  ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' 
+                  : 'bg-slate-950/60 text-slate-400 border border-slate-800 hover:text-slate-200'
               }`}
-              style={selectedCategory === cat.category ? { background: config.color, borderColor: config.color } : {}}
             >
-              <Icon className="w-3 h-3" />
-              {cat.category.charAt(0).toUpperCase() + cat.category.slice(1)} ({cat.count})
+              {cat.category} ({cat.count})
             </button>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
-      {/* Search Results Badge */}
-      {searchResults && (
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">
-            {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for "{query}"
-          </span>
-          <button
-            onClick={() => { setSearchResults(null); setQuery(''); }}
-            className="text-xs text-primary hover:underline"
-          >
-            Clear search
-          </button>
-        </div>
-      )}
-
-      {/* Documents + Detail Panel */}
+      {/* Main Grid: Left Document Directory / Right Reading Viewer */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Document List */}
-        <div className="lg:col-span-1 space-y-2 max-h-[600px] overflow-y-auto custom-sidebar-scrollbar">
+        {/* Document Directory Column */}
+        <div className="bg-slate-900 border border-slate-800 rounded-md p-3 space-y-2 max-h-[540px] overflow-y-auto custom-sidebar-scrollbar">
+          <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-1 pb-1 border-b border-slate-800">
+            Resolution Playbooks ({displayDocs.length})
+          </div>
+
           {loading ? (
-            <div className="glass-card p-8 text-center">
-              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-            </div>
+            <div className="p-4 text-center text-slate-400 text-xs">Loading playbooks...</div>
           ) : displayDocs.length === 0 ? (
-            <div className="glass-card p-8 text-center">
-              <BookOpen className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-              <p className="text-xs text-gray-400">No documents found</p>
-            </div>
+            <div className="p-4 text-center text-slate-500 text-xs">No playbooks found.</div>
           ) : (
             displayDocs.map(doc => {
-              const config = categoryConfig[doc.category] || { icon: FileText, color: '#6b7280' };
-              const Icon = config.icon;
               const isSelected = selectedDoc?.id === doc.id;
               return (
                 <div
                   key={doc.id}
                   onClick={() => setSelectedDoc(doc)}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                    isSelected
-                      ? 'bg-primary/10 border-primary/30'
-                      : 'bg-surface/80 border-border hover:border-gray-600'
+                  className={`p-2.5 rounded border text-xs cursor-pointer transition-colors space-y-1 ${
+                    isSelected 
+                      ? 'bg-blue-600/15 border-blue-500/30 text-blue-300' 
+                      : 'bg-slate-950/60 border-slate-800/80 text-slate-300 hover:border-slate-700'
                   }`}
                 >
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon className="w-3.5 h-3.5" style={{ color: config.color }} />
-                    <span className="text-[10px] uppercase tracking-wider" style={{ color: config.color }}>
-                      {doc.category}
-                    </span>
-                    {doc.relevanceScore !== undefined && (
-                      <span className="text-[10px] text-green-400 ml-auto">
-                        {Math.round(doc.relevanceScore * 100)}% match
-                      </span>
-                    )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold uppercase text-slate-500">{doc.category}</span>
+                    <ChevronRight className="w-3 h-3 text-slate-600" />
                   </div>
-                  <p className="text-xs font-medium text-gray-200">{doc.title}</p>
-                  <p className="text-[10px] text-gray-400 mt-1 line-clamp-2">{doc.content}</p>
+                  <div className="font-semibold text-slate-200">{doc.title}</div>
+                  <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">{doc.content}</p>
                 </div>
               );
             })
           )}
         </div>
 
-        {/* Document Detail */}
-        <div className="lg:col-span-2">
+        {/* Playbook Reader Panel */}
+        <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-md p-5 flex flex-col justify-between">
           {selectedDoc ? (
-            <div className="glass-card p-6">
-              <div className="flex items-center gap-2 mb-3">
-                {(() => {
-                  const config = categoryConfig[selectedDoc.category] || { icon: FileText, color: '#6b7280' };
-                  const Icon = config.icon;
-                  return (
-                    <>
-                      <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center"
-                        style={{ background: `${config.color}15` }}
-                      >
-                        <Icon className="w-4 h-4" style={{ color: config.color }} />
-                      </div>
-                      <span
-                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded"
-                        style={{ color: config.color, background: `${config.color}15` }}
-                      >
-                        {selectedDoc.category}
-                      </span>
-                    </>
-                  );
-                })()}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
+                <FileText className="w-4 h-4 text-blue-400" />
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-blue-600/20 text-blue-400 border border-blue-500/30 uppercase">
+                  {selectedDoc.category}
+                </span>
+                <span className="text-xs font-mono text-slate-500">REF-{selectedDoc.id}</span>
               </div>
 
-              <h2 className="text-lg font-semibold text-gray-100 mb-4">{selectedDoc.title}</h2>
+              <h2 className="text-base font-bold text-slate-100">{selectedDoc.title}</h2>
 
-              <div className="prose prose-sm prose-invert max-w-none">
-                <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{selectedDoc.content}</p>
+              <div className="p-4 bg-slate-950/60 border border-slate-800 rounded text-xs text-slate-300 leading-relaxed font-mono whitespace-pre-wrap">
+                {selectedDoc.content}
               </div>
 
               {selectedDoc.tags.length > 0 && (
-                <div className="mt-6 pt-4 border-t border-border">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Tag className="w-3 h-3 text-gray-500" />
-                    <span className="text-[10px] text-gray-500 uppercase tracking-wider">Tags</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
+                <div className="pt-3 border-t border-slate-800 flex items-center gap-2 text-xs">
+                  <Tag className="w-3.5 h-3.5 text-slate-500" />
+                  <div className="flex flex-wrap gap-1">
                     {selectedDoc.tags.map(tag => (
-                      <span key={tag} className="text-[10px] px-2 py-0.5 bg-surface border border-border rounded text-gray-400">
+                      <span key={tag} className="px-2 py-0.5 bg-slate-950 border border-slate-800 rounded text-[10px] font-mono text-slate-400">
                         {tag}
                       </span>
                     ))}
@@ -258,12 +202,8 @@ export default function KnowledgeBase() {
               )}
             </div>
           ) : (
-            <div className="glass-card p-12 text-center">
-              <BookOpen className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-              <h3 className="text-sm font-medium text-gray-400">Select a document to view details</h3>
-              <p className="text-xs text-gray-500 mt-1">
-                Browse categories or search for specific topics
-              </p>
+            <div className="p-8 text-center text-slate-500 text-xs">
+              Select a playbook document from the left directory to view full operational procedures.
             </div>
           )}
         </div>
@@ -271,3 +211,4 @@ export default function KnowledgeBase() {
     </div>
   );
 }
+
